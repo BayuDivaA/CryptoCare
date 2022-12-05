@@ -1,10 +1,10 @@
-import Navbar from "../homepage/component/Navbar";
+import NavbarForm from "./components/NavbarForm";
 
 const Form = () => {
   return (
     <div className="min-h-screen">
       <div className="gradient-bg-welcome">
-        <Navbar />
+        <NavbarForm />
       </div>
     </div>
   );
