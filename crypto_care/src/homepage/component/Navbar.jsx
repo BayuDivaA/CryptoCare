@@ -14,7 +14,7 @@ const Navbar = () => {
 
   return (
     // Akan melakukan md selama ukuran layar besar dari 768px
-    <nav className="flex justify-between md:justify-around items-center p-4 mx-4">
+    <nav className="flex justify-between items-center p-4 mx-4">
       <div className="items-center flex-initial">
         <img src={logo} alt="logo" className="w-40 cursor-pointer" />
       </div>

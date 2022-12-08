@@ -6,15 +6,17 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" exact element={<Home />} />
-        <Route path="/about" exact element={<About />} />
-        <Route path="/form" exact element={<Form />} />
-        <Route path="/profil/:name" exact element={""} />
-        {/* <Route component={Notfound} /> */}
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" exact element={<Home />} />
+          <Route path="/about" exact element={<About />} />
+          <Route path="/form" exact element={<Form />} />
+          <Route path="/profil/:name" exact element={""} />
+          {/* <Route component={Notfound} /> */}
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

@@ -22,9 +22,14 @@ body {
   background-image: radial-gradient(at 100% 100%, hsla(240, 100%, 50%, 0.64) 0px, transparent 50%), radial-gradient(at 0% 44%, hsla(108, 100%, 38%, 0.57) 0px, transparent 50%);
 }
 
-.gradient-bg-services {
-  background-color: #ffffff;
-  background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%), radial-gradient(at 50% 100%, hsla(225, 39%, 25%, 1) 0, transparent 50%);
+.gradient-bg-form {
+  background-color: hsla(0, 0%, 100%, 1);
+  background-image: radial-gradient(at 89% 0%, hsla(240, 100%, 70%, 0.32) 0px, transparent 50%), radial-gradient(at 58% 0%, hsla(343, 100%, 45%, 0.5) 0px, transparent 50%);
+}
+
+.gradient-bg-verified {
+  background: rgb(0, 212, 255);
+  background: linear-gradient(90deg, rgba(0, 212, 255, 1) 13%, rgba(14, 14, 163, 1) 100%);
 }
 
 .gradient-bg-transactions {
