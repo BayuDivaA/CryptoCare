@@ -36,8 +36,6 @@ const Page1b = () => {
                 type="text"
                 placeholder="example@gmail.com"
               />
-              {/* <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane" /> */}
-              {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-2">
@@ -53,7 +51,7 @@ const Page1b = () => {
           <div className="flex flex-wrap -mx-3 mb-2">
             <div className="w-full md:w-1/5 px-3 mb-6 md:mb-0">
               <div className="block relative">
-                <select className="appearance-none w-full bg-gray-200 border border-gray-200 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state">
+                <select className="appearance-none w-full bg-gray-200 border border-gray-200 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="social-media">
                   <option>Instagram</option>
                   <option>Facebook</option>
                   <option>Texas</option>
@@ -66,7 +64,7 @@ const Page1b = () => {
               </div>
             </div>
             <div className="w-full md:w-4/5 px-3 mb-6 md:mb-0">
-              <input className="appearance-none block w-full bg-gray-200 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="social-input" type="text" placeholder="90210" />
+              <input className="appearance-none block w-full bg-gray-200 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="social-media" type="text" placeholder="90210" />
             </div>
           </div>
         </form>

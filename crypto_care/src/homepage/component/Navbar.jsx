@@ -9,7 +9,7 @@ const NavbarItem = ({ title, classProps }) => {
   return <li className={`mx-4 cursor-pointer ${classProps}`}>{title}</li>;
 };
 
-const Navbar = () => {
+const Navbar = ({ showList }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
 
   return (
@@ -18,11 +18,13 @@ const Navbar = () => {
       <div className="items-center flex-initial">
         <img src={logo} alt="logo" className="w-40 cursor-pointer" />
       </div>
-      <ul className="text-black md:flex flex-row hidden list-none items-center flex-initial">
-        {["Home", "Tutorials", "Bridge", "Abouts"].map((item, index) => (
-          <NavbarItem key={item + index} title={item} />
-        ))}
-      </ul>
+      {showList && (
+        <ul className="text-black md:flex flex-row hidden list-none items-center flex-initial">
+          {["Home", "Tutorials", "Bridge", "Abouts"].map((item, index) => (
+            <NavbarItem key={item + index} title={item} />
+          ))}
+        </ul>
+      )}
       <div className=" text-white font-bold md:flex hidden flex-initial items-center bg-[#302CED] py-2 px-7 rounded-lg cursor-pointer hover:bg-[#2546bd]">
         <FaWallet className="mr-2" />
         <span>Connect</span>
@@ -36,7 +38,7 @@ const Navbar = () => {
         {toggleMenu && (
           <ul className="z-10 fixed top-0 -right-2 p-3 w-[70vw] h-screen shadow-2xl md:hidden list-none flex flex-col justify-start items-end rounded-md white-glassmorphism text-black animate-slide-in">
             <li className="text-xl w-full my-2">
-              <AiOutlineClose onClick={() => setToggleMenu(false)} />
+              <AiOutlineClose onClick={() => setToggleMenu(false)} className="cursor-pointer" />
             </li>
             {["Home", "Tutorials", "Bridge", "Abouts"].map((item, index) => (
               <NavbarItem key={item + index} title={item} classProps="text-black my-2 text-lg" />

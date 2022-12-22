@@ -17,13 +17,18 @@ const Page1a = () => {
             </div>
           </div>
         </div>
-        <div className="flex justify-center pt-5">
-          <button className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-            <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Cyan to blue</span>
-          </button>
-          <button className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-            <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Cyan to blue</span>
-          </button>
+        <div className="flex justify-center">
+          <p className="md:text-xs text-sm">Choose the type of fundraising that you need</p>
+        </div>
+        <div className="flex justify-center pt-5 gap-3">
+          <div className="flex-col w-2/6 max-w-lg bg-white border border-blue-800 text-blue-800 p-4 rounded-md hover:text-white hover:bg-blue-800 cursor-pointer" onClick={""}>
+            <h1 className="text-lg font-bold pb-2">Normal Fundraising</h1>
+            <p className="text-sm text-justify">An Urgent Fundraiser is a fundraiser created for those who are in need of funds as quickly as possible, no need to go through a voting process for the use of funds.</p>
+          </div>
+          <div className="flex-col w-2/6 max-w-lg bg-white border border-blue-800 text-blue-800 p-4 rounded-md hover:text-white hover:bg-blue-800 cursor-pointer" onClick={""}>
+            <h1 className="text-lg font-bold pb-2">Urgent Fundraising</h1>
+            <p className="text-sm text-justify">Withdrawing funds at a regular fundraiser will require a vote from donors so that the funds are used as needed.</p>
+          </div>
         </div>
       </div>
     </div>

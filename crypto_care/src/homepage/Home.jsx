@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <div className="gradient-bg-welcome">
-        <Navbar />
+        <Navbar showList={true} />
         <Welcome />
         <Urgent />
         <Campaign />
