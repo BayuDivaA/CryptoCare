@@ -14,7 +14,6 @@ const CampaignCard = ({ title, url, description, Duration, userVerif, creatorAdd
   const day = date.toLocaleString("default", { day: "2-digit" });
   const month = date.toLocaleString("default", { month: "short" });
   const year = date.toLocaleString("default", { year: "numeric" });
-  const time = date.toLocaleTimeString();
   const dateFormat = month + " " + day + ", " + year;
 
   const persentage = ((Target - collectedFunds) / Target) * 100;

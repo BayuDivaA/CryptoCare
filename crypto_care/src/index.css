@@ -32,6 +32,11 @@ body {
   background: linear-gradient(90deg, rgba(0, 212, 255, 1) 13%, rgba(14, 14, 163, 1) 100%);
 }
 
+.gradient-bg-unverified {
+  background: rgb(255, 86, 86);
+  background: linear-gradient(90deg, rgba(255, 86, 86, 1) 13%, rgba(194, 10, 10, 1) 100%);
+}
+
 .gradient-bg-transactions {
   background-color: #ffffff;
   background-image: radial-gradient(at 0% 100%, hsla(253, 16%, 7%, 1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225, 39%, 25%, 1) 0, transparent 50%);
@@ -61,7 +66,7 @@ body {
 
 .summary-grid {
   --tw-bg-opacity: 0.2;
-  background-color: rgb(48 44 237 / var(--tw-bg-opacity));
+  background-color: rgb(66 165 245 / var(--tw-bg-opacity));
   border-radius: 0.5rem /* 8px */;
   padding: 8px 12px 8px 12px;
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);

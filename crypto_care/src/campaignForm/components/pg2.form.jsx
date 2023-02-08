@@ -15,7 +15,7 @@ const category = [
   { name: "war crisis", Icon: <GiMissileSwarm /> },
 ];
 
-const Page2 = () => {
+const Page2 = ({ formData, setFormData }) => {
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col w-5/6">
@@ -36,23 +36,42 @@ const Page2 = () => {
                 id="campaign-name"
                 type="text"
                 placeholder="Help African Childern"
+                value={formData.title}
+                defaultValue="My default value"
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    title: e.target.value,
+                  });
+                }}
               />
               {/* <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" placeholder="Jane" /> */}
               {/* <p className="text-red-500 text-xs italic">Please fill out this field.</p> */}
             </div>
           </div>
-          <div className="flex -mx-3 mb-3">
+          <div className="flex -mx-3">
             <div className="w-full px-3 mb-6 md:mb-0">
-              <label className="block text-base font-bold" htmlFor="description-campaign">
-                Describe the fundraising that you will do?
+              <label className="block text-base font-bold" htmlFor="story-campaign">
+                Make a story related to the campaign.
               </label>
-              <label className="block text-xs mb-2" htmlFor="description-campaign">
-                A clear and good description can attract the attention of donors.
+              <label className="block text-xs mb-2" htmlFor="story-campaign">
+                Stories are better if they contain an introduction to the creator, about the problems he wants to solve, and the benefits of the campaign.
               </label>
-              <textarea id="description-campaign" type="text" className="appearance-none block w-full bg-gray-200 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 h-40" />
+              <textarea
+                className="appearance-none block w-full bg-gray-200 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 h-52"
+                id="story-campaign"
+                type="text"
+                value={formData.story}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    story: e.target.value,
+                  });
+                }}
+              />
             </div>
           </div>
-          <div className="flex flex-wrap -mx-3 mb-12">
+          <div className="flex flex-wrap -mx-3">
             <div className="w-full px-3 mb-6 md:mb-0">
               <label className="block text-base font-bold" htmlFor="category-campaign">
                 Choose a fundraising category?
@@ -64,7 +83,20 @@ const Page2 = () => {
             <div className="md:grid md:grid-cols-8 grid grid-cols-4">
               {category.map((item, i) => (
                 <div key={i} className="col-span-2 pb-2">
-                  <input id={item.name} type="radio" value={item.name} name="category" className="hidden peer" />
+                  <input
+                    id={item.name}
+                    type="radio"
+                    value={item.name}
+                    name="category"
+                    className="hidden peer"
+                    checked={formData.category == item.name}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        category: e.target.value,
+                      });
+                    }}
+                  />
                   <label
                     htmlFor={item.name}
                     className="capitalize flex justify-around md:text-base text-xs items-center mx-2 py-2 px-5 text-white bg-[#c0bffa] rounded-full cursor-pointer hover:border-transparent  hover:bg-[#302CED] peer-checked:text-white peer-checked:bg-[#302CED]"
@@ -76,7 +108,7 @@ const Page2 = () => {
               ))}
             </div>
           </div>
-          <div className="flex -mx-3 mb-3">
+          {/* <div className="flex -mx-3 mb-3">
             <div className="w-full px-3 mb-6 md:mb-0">
               <label className="block text-sm font-bold" htmlFor="recipient-name">
                 Who is the recipient of your campaign funds?
@@ -107,18 +139,8 @@ const Page2 = () => {
                 placeholder="in Cianjur, west java, indonesia."
               />
             </div>
-          </div>
+          </div> */}
         </form>
-        <div className="flex w-full justify-end mt-5 mb-10">
-          <button type="button" className="text-black border border-black hover:bg-blue-100 hover:border-blue-800 rounded-lg p-2.5 text-center inline-flex items-center mr-5">
-            <AiOutlineArrowLeft className="text-xl" />
-            <span className="sr-only">Icon description</span>
-          </button>
-          <button type="button" className="text-white bg-blue-700 hover:bg-blue-800  rounded-lg p-2.5 text-center inline-flex items-center">
-            <AiOutlineArrowRight className="text-xl" />
-            <span className="sr-only">Icon description</span>
-          </button>
-        </div>
       </div>
     </div>
   );
