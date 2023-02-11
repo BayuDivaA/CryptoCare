@@ -2,16 +2,17 @@
 pragma solidity ^0.8.15;
 
 contract CryptoCareFactory {
-    address constant superAdmin = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address constant superAdmin = 0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092;
 
-    mapping(address => bool) admin;
+    mapping(address => bool) public admin;
     mapping(address => bool) public verifiedAddress;
     mapping(address => string) public userName;
+    mapping(address => string) public photoUrl;
 
     uint public campaignCount;
     Campaign[] public deployedCampaign;
 
-    function getAddress(address _user) external view returns (bool, string memory) {
+    function getAddress(address _user) public view returns (bool, string memory) {
         return (verifiedAddress[_user], userName[_user]);
     }
 
@@ -39,46 +40,67 @@ contract CryptoCareFactory {
     }
 
     // FUNCTION VERIF n UNVERIF USER (ADMIN)
-    function setAddressVerified(address _user, string memory _name) public onlyAdmin {
+    function setAddressVerified(address _user) public onlyAdmin {
         verifiedAddress[_user] = true;
-        userName[_user] = _name;
+        userName[_user] = "User";
     }    
 
     function setAddressUnverified(address _user) public onlyAdmin {
         verifiedAddress[_user] = false;
+        userName[_user] = "User";
     }
 
     // Function Set UserName
     function setUsername(address _user, string memory _name) public onlyVerified {
         userName[_user] = _name;
     } 
+    
+    // Function Set UserName
+    function setPhoto(address _user, string memory _url) public onlyVerified {
+        photoUrl[_user] = _url;
+    } 
+
+    function getCampaigns() public view returns (Campaign[] memory){
+        return deployedCampaign;
+    }
 
     //CREATE NEW Regular CAMPAIGN
-    function createCampaigns(string memory _title, string memory _url, string memory _story, uint _duration, uint _target, uint _tipes, string memory _category, string memory _recName, string memory _recLoc, uint _minimum) public
+    function createCampaigns(string memory _title, string memory _url, string memory _story, uint _duration, uint _target, uint _tipes, string memory _category, uint _minimum) external 
     {
         campaignCount += 1;
+        uint _id = campaignCount;
         // Normal = 0
         // Urgent = 1
-        Campaign newCampaigns = new Campaign(_title, _url, _story, block.timestamp, _duration, msg.sender,_target, _tipes, _category, _recName, _recLoc, _minimum);
+        uint typeCampaign;
+        if (!verifiedAddress[msg.sender]){
+            typeCampaign = 0;
+        }
+        else {
+            typeCampaign = _tipes;
+        }
+        Campaign newCampaigns = new Campaign(_id, _title, _url, _story, block.timestamp, _duration, msg.sender,_target, typeCampaign, _category, _minimum);
         deployedCampaign.push(newCampaigns); 
+
     }
 }
 
 contract Campaign {
-    mapping(address => bool) contributor; // Check for user contributed or not
-    mapping(address => bool) reported; // User already reported
-    mapping(address => uint) donatedValue; // User donated valu
-
-    CryptoCareFactory ccf;
+    mapping(address => bool) public donors;
+    mapping(address => bool) public voter; // apakah address diberi izin untuk vote (jika melebihi minimal donasi akan diberikan hak untuk vote)
+    mapping(address => bool) public reported; // apakah user sudah pernah melakukan report
+    mapping(address => uint) public donatedValue; // Menyimpan besaran donasi dari setiap alamat
     
-    uint public contributorsCount;
-    uint campaignReport;
-    uint collectedFunds;
-    bool campaignActive;
+    uint public voterCount; // Total dari user yang diberikan izin vote
+    uint public donatursCount; // Total dari jumlah seluruh donasi
+    uint public campaignReport; // Jumlah report
+    uint public collectedFunds; // Jumlah dana yang sudah terkumpul
+    bool campaignActive; // Cek apakah campaign masih aktif
 
-    address[] contributors;
-    uint[] donations;
+    // Menyimpan riwayat dari setiap donasi (Address dana jumlah donasinya)
+    address[] public contributors; 
+    uint[] public donations;
 
+    uint campaignId;
     string campaignTitle; //*
     string campaignUrl; //*
     string[] campaignStory; //*
@@ -86,13 +108,20 @@ contract Campaign {
     uint campaignDuration; //*
     address campaignCreator;
     uint campaignTarget; //*
-    uint campaignTypes; //*
+    uint  campaignTypes; //*
     string campaignCategory; //*
-    string recipientName; //*
-    string recipientLoc; //*
-    uint minimContribution; //*
+    uint minimContribution; // Minimal kontribusi agar bisa mendapatkan hak untuk voting
 
-    constructor(string memory _title, string memory _url, string memory _story, uint _date, uint _duration, address _creator, uint _target, uint _tipes, string memory _category, string memory _recName, string memory _recLoc, uint _minimum) {
+    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint){
+        return(voterCount, campaignReport,contributors, donations,minimContribution, voterCount);
+    }
+
+    function getCampaign() public view returns(string memory, string memory, string[] memory, uint, uint, address, uint, string memory, uint, uint, uint,bool ){
+        return (campaignTitle, campaignUrl, campaignStory, campaignTimestamp, collectedFunds, campaignCreator, campaignTypes, campaignCategory, campaignTarget, donatursCount,campaignDuration,campaignActive);
+    }
+
+    constructor(uint _id, string memory _title, string memory _url, string memory _story, uint _date, uint _duration, address _creator, uint _target, uint _tipes, string memory _category, uint _minimum) {
+        campaignId = _id;
         campaignTitle = _title;
         campaignUrl = _url;
         campaignStory.push(_story);
@@ -102,47 +131,56 @@ contract Campaign {
         campaignTarget = _target;
         campaignTypes = _tipes;
         campaignCategory = _category;
-        recipientName = _recName;
-        recipientLoc = _recLoc;
         minimContribution = _minimum;
 
+        donatursCount = 0;
         collectedFunds = 0;
         campaignActive = true;
     }
     
-    
-    //Access Modifier ====
+    function editCampaign(string memory _title, string memory _url, uint _minimum) public {
+        campaignTitle = _title;
+        campaignUrl = _url;
+        minimContribution = _minimum;
+    }
 
+    function endCampaign() public {
+        campaignActive = false;
+    }
+
+    //Access Modifier ====
     modifier onlyOwner() {
         require(msg.sender == campaignCreator);
         _;
     }
 
-    modifier onlyContributor() {
-        require(contributor[msg.sender]);
+    modifier onlyVoter() {
+        require(voter[msg.sender]);
         _;
     }
 
+    modifier onlyActive() {
+        require(campaignActive == true);
+        _;        
+    }
+
     // DONATE FUNCTION ====
-    function contribute() public payable {
+    function contribute() public payable onlyActive{
         uint256 amount = msg.value;
-        uint256 userValue =  donatedValue[msg.sender];
 
         contributors.push(msg.sender);
         donations.push(amount);
 
         collectedFunds = collectedFunds + amount;
-        userValue = userValue + amount;
+        donatedValue[msg.sender] = donatedValue[msg.sender]+ msg.value;
+        donors[msg.sender]=true;
+        donatursCount++;
         
-        require(msg.value >= minimContribution);        
-        contributor[msg.sender] = true;
+        if(donatedValue[msg.sender] >= minimContribution && !voter[msg.sender]){
+            voter[msg.sender] = true;
+            voterCount++;
+        }        
     } 
-
-    function getUsedBalance() public view returns(uint256) {
-        uint usedBalance = (collectedFunds - address(this).balance) / collectedFunds * 100;
-
-        return usedBalance;
-    }
     
     // Withdrawl Request Struct ===
     struct WithdrawlStruct {
@@ -150,54 +188,77 @@ contract Campaign {
         uint value;
         address payable recipient;
         bool complete;
+        uint createTimestamp;
         uint completedTimestamp;
         uint approvalsCount;
-        mapping(address => bool) approvals;
     }
 
+    mapping(address => mapping(uint=>bool)) public approvals;
+
     WithdrawlStruct[] public withdrawls;
-    uint wdIndex;
+
+    function getRequestWithdrawl() public view returns(WithdrawlStruct[] memory){
+        return withdrawls;
+    }
 
     // Create Withdrawl Request
-    function createWithdrawl(string memory description, uint value, address payable recipient) public onlyOwner{      
-        WithdrawlStruct storage r = withdrawls[wdIndex++];
-            r.description = description;
-            r.value = value;
-            r.recipient = recipient;
+    function createWithdrawl(string memory _description, uint _value, address payable _recipient) public onlyOwner{      
+        require(_value <= address(this).balance, "The desired funds are not sufficient to make a withdrawal");
+
+        WithdrawlStruct storage r = withdrawls.push();
+            r.description = _description;
+            r.value = _value;
+            r.recipient = _recipient;
             r.complete = false;
-            r.completedTimestamp = block.timestamp;
+            r.createTimestamp = block.timestamp;
             r.approvalsCount = 0;
     }
 
     // Approve Withdrawl Request
-    function approvalWithdrawl(uint index) public onlyContributor {
+    function approvalWithdrawl(uint index) public onlyVoter onlyActive{
         WithdrawlStruct storage w = withdrawls[index];
 
-        require(!w.approvals[msg.sender]);
+        require(voter[msg.sender], "Address can't vote");
+        require(!approvals[msg.sender][index], "User already voted!"); // User has not voted
 
-        w.approvals[msg.sender] = true;
+        approvals[msg.sender][index] = true;
         w.approvalsCount++;
     }
 
-    // Finalize Withdrawl
-    function finalizeWd(uint index) public onlyOwner{
-        WithdrawlStruct storage wd = withdrawls[index];
+    function cancelApprovalWithdrawl(uint index) public onlyVoter onlyActive{
+        WithdrawlStruct storage w = withdrawls[index];
 
-        require(wd.approvalsCount >= (contributorsCount / 1));
-        require(!wd.complete);
-        wd.recipient.transfer(wd.value);
-        wd.complete = true;
+        require(voter[msg.sender], "Address can't vote");
+        require(approvals[msg.sender][index], "User not vote yet"); // User has not voted
+
+        approvals[msg.sender][index] = false;
+        w.approvalsCount--;
     }
 
-    function urgentWd(string memory description, address payable recipient) public payable onlyOwner{
-        uint256 wdValue = msg.value;
+    // Finalize Withdrawl
+    // UseEffect
+    function finalizeWd(uint index) public onlyOwner onlyActive{
+        WithdrawlStruct storage wd = withdrawls[index];
 
-        WithdrawlStruct storage wd = withdrawls[wdIndex++];
-        require(!wd.complete);
-        require(wdValue >= address(this).balance, "Not enough amount");
+        require(wd.approvalsCount >= (voterCount / 2), "Approval has not exceeded 50%");
+        require(!wd.complete, "This withdrawal has been completed");
 
-        // wd.recipient.transfer(value);
-        (bool sent, ) = payable(wd.recipient).call{value: wdValue}("");
+        (bool sent, ) = payable(wd.recipient).call{value: wd.value}("");
+
+        if(sent){
+            wd.complete = true;
+            wd.completedTimestamp = block.timestamp;
+        }
+    }
+
+    function urgentWd(string memory description, address payable recipient, uint wdValue) public onlyOwner onlyActive{
+
+        WithdrawlStruct storage wd = withdrawls.push();
+        require(campaignTypes == 1, "This type of campaign is not urgent");
+        require(!wd.complete, "This withdrawal has been completed");
+        require(wdValue <= address(this).balance, "Not enough amount");
+
+        (bool sent, ) = payable(recipient).call{value: wdValue}("");
 
         if(sent){
             wd.description = description;
@@ -209,21 +270,35 @@ contract Campaign {
         }      
     }
 
-    function reportCampaign () public onlyContributor{
-        require(reported[msg.sender] == false);
-        
+    function reportCampaign () public {
+        require(reported[msg.sender] == false,"already vote");
+         require(donors[msg.sender]);
+         
         campaignReport++;
         reported[msg.sender] = true;
-        if (campaignReport >= (contributorsCount/2)){
+        if (campaignReport > (donatursCount/2) && donatursCount >= 3){
             campaignActive = false;
         }
     }
 
-    function refundDonate(uint value) public onlyContributor {
-        require(donatedValue[msg.sender] > 0);
+    function refundDonate() public {
+        address  _to = msg.sender;
 
-        payable(address(msg.sender)).transfer(value);
+        require(donors[_to]);
+        require(donatedValue[_to] > 0);
+        uint256 amount = donatedValue[_to];
+
+        (bool sent, ) = payable(_to).call{value: amount}("");
  
-        contributor[msg.sender] = false;
+        if(sent){
+            collectedFunds = collectedFunds - amount;
+            donatedValue[_to] = 0;
+            donors[_to] = false;
+            donatursCount--;
+            if(voter[_to]){
+                voterCount--;
+                voter[_to] = false;
+            }
+        }
     } 
 }

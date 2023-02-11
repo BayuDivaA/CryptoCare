@@ -1,15 +1,12 @@
-// https://opt-goerli.g.alchemy.com/v2/gu3thyiS9UhkqwA_dy9GHshycnrglzs5
-
 require("@nomicfoundation/hardhat-toolbox");
-require("@nomicfoundation/hardhat-chai-matchers");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.17",
   networks: {
     "optimism-goerli": {
-      url: "https://opt-goerli.g.alchemy.com/v2/gu3thyiS9UhkqwA_dy9GHshycnrglzs5",
-      accounts: ["542b49340fb3bcf750260dc4d64eadb1e1b717b5c4fa4d57f8e73aa20e30660c"],
+      url: "https://optimism-goerli.infura.io/v3/3d1947cbec5a45488fd1d5d0162fae38",
+      accounts: ["addda02eef3646819481b1d41e64778130cf7c13053c7a09ed8edbb239f44983"],
     },
   },
 };
