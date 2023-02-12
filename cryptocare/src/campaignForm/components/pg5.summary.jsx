@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { SiEthereum } from "react-icons/si";
 import { RiErrorWarningLine } from "react-icons/ri";
-import banner from "../../../images/banner.png";
 
 import dayjs from "dayjs";
 

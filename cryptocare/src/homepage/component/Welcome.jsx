@@ -40,8 +40,7 @@ const Welcome = () => {
     if (campaigns.length !== 0) {
       console.log(campaigns);
       const parsedCampaigns = fetchCampaign(campaigns);
-      const activeCampaigns = parsedCampaigns.filter((campaign) => campaign.active === true);
-      setCampaignsCount(activeCampaigns.length);
+      setCampaignsCount(parsedCampaigns.length);
 
       const donor = parsedCampaigns?.map((a) => {
         return a.donatursCount;

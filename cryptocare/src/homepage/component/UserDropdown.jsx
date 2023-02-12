@@ -59,7 +59,7 @@ export default function UserDropdown() {
                 )}
               </Menu.Item>
               <Menu.Item>
-                {({ active, isAdmin }) => (
+                {({ active }) => (
                   <button
                     onClick={() => navigate("/admin")}
                     className={`${active ? "bg-[#2557D6] text-white" : "text-gray-900"} ${isAdmin || account === "0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092" ? "flex" : "hidden"} group w-full items-center rounded-md px-2 py-2 text-sm`}
