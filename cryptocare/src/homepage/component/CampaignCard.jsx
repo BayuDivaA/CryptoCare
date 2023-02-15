@@ -33,7 +33,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
   return (
     <div className="w-full inline-block">
       <div className="max-w-xs overflow-hidden rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out">
-        <img src={url} alt="BANNER CAMPAIGN" className="h-56 w-full object-cover rounded-t-md" />
+        <img src={url} alt="BANNER CAMPAIGN" className="md:h-56 h-32 w-full object-cover rounded-t-md" />
 
         {/* <img src={url} alt="Banner" className="h-1/2" /> */}
         <div className="p-2 flex flex-col">
@@ -44,7 +44,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
               {category}
             </div>
           </div>
-          <h3 className="text-lg font-bold">{title}</h3>
+          <h3 className="md:text-lg text-base font-bold">{title}</h3>
           <div className="flex items-center mb-4">
             <button onClick={() => window.open(`/profile/${creator}`, "_blank")} target="_blank" rel="noopener noreferrer" className="text-xs font-thin text-[#7B7D8C] cursor-pointer hover:text-[#393b4e]">
               {shortenAddress(creator)}{" "}
@@ -61,14 +61,14 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
           <div className="flex flex-row justify-between pb-2">
             <div className="flex items-center">
               <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
-              <p className=" text-lg font-bold text-[#302CED]">
+              <p className=" md:text-lg text-base font-bold text-[#302CED]">
                 {collectedFunds}
                 <span className="text-xs font-thin text-[#7B7D8C]"> ${(etherPrice * collectedFunds).toFixed(2)}</span>{" "}
               </p>
             </div>
-            <div className="flex items-center text-lg font-bold text-[#302CED]">{donatursCount}</div>
+            <div className="flex items-center md:text-lg text-base font-bold text-[#302CED]">{donatursCount}</div>
           </div>
-          <button onClick={handleDetails} className="w-full text-[#302CED] hover:text-white md:flex justify-center border border-[#302CED] hover:border-transparent py-1 px-7 mt-1 rounded-lg cursor-pointer hover:bg-[#302CED]">
+          <button onClick={handleDetails} className="w-full text-[#302CED] text-base hover:text-white md:flex justify-center border border-[#302CED] hover:border-transparent py-1 px-7 mt-1 rounded-lg cursor-pointer hover:bg-[#302CED]">
             <span>See Details</span>
           </button>
         </div>

@@ -16,11 +16,11 @@ const FilterButton = ({ text, handle }) => {
   );
 };
 
-const FilterButtonDropdown = ({ text }) => {
+const FilterButtonDropdown = ({ text, handle }) => {
   return (
     <li>
-      <div className="flex rounded items-center my-1">
-        <input type="radio" id={text} name="filterDropdown" value={text} className=" text-blue-600 hidden peer" />
+      <div className="flex rounded items-center my-1 mx-5">
+        <input type="radio" onClick={handle} id={text} name="filterDropdown" value={text} className=" text-blue-600 hidden peer" />
       </div>
       <label htmlFor={text} className="capitalize font-medium  mx-2 py-2 px-2 rounded-md  hover:text-white cursor-pointer hover:bg-[#302CED] peer-checked:text-white peer-checked:bg-[#302CED]">
         {text}
@@ -35,6 +35,7 @@ const Campaign = () => {
 
   function handleFilter(e) {
     setFilter(e.target.value);
+    setToggleMenu(false);
   }
 
   function toggleMenuHandle() {
@@ -54,15 +55,15 @@ const Campaign = () => {
             <FilterButton key={index} text={text} handle={handleFilter} />
           ))}
         </ul>
-        <div className="z-10 flex relative justify-end md:hidden">
-          <button className="text-blue-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center" type="button" onClick={toggleMenuHandle}>
-            Show only <BiFilter fontSize={28} className="text-blue-500 md:hidden cursor-pointer" />
+        <div className="z-10 flex md:hidden">
+          <button className="capitalize text-blue-700  font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center" type="button" onClick={toggleMenuHandle}>
+            {filter} <BiFilter fontSize={28} className="text-blue-500 md:hidden cursor-pointer ml-2" />
           </button>
 
           {toggleMenu && (
-            <ul className="absolute z-10 white-glassmorphism rounded p-2 text-sm text-gray-700 translate-y-12">
+            <ul className="absolute z-10 white-glassmorphism rounded text-sm text-gray-700 translate-y-12">
               {["all", "education", "disaster", "childern", "health", "animal", "pandemic", "food crisis", "war crisis"].map((text, i) => (
-                <FilterButtonDropdown key={i} text={text} />
+                <FilterButtonDropdown key={i} text={text} handle={handleFilter} />
               ))}
             </ul>
           )}

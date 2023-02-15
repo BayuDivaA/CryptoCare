@@ -123,7 +123,7 @@ export default function myCampaign() {
           <div className="flex w-5/6 m-5 items-center justify-between md:justify-start">
             <h1 className="md:text-3xl font-bold mr-6">User Deployed Campaigns</h1>
           </div>
-          <div className="flex bg-white shadow-xl w-5/6 p-7 justify-center">
+          <div className="flex md:bg-white shadow-xl md:w-5/6 px-5 md:p-5 justify-center rounded-md">
             {isLoading ? (
               <div className="flex items-center flex-col my-5 justify-center">
                 <img src={loader_2} alt="loader" className="flex w-[50px] h-[50px] object-contain mx-5 mb-2 justify-center" />
@@ -132,9 +132,9 @@ export default function myCampaign() {
             ) : currentItems.length === 0 ? (
               <div className="flex justify-center my-5 italic">No Campaigns Yet</div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col md:grid grid-cols-2 gap-3">
                 {currentItems.map((campaign, i) => (
-                  <div key={i} className="flex justify-center">
+                  <div key={i} className="flex justify-center w-full">
                     <MyCampaignCard {...campaign} />
                   </div>
                 ))}

@@ -14,6 +14,7 @@ import { checkIfAdmin } from "../../smart_contract/SmartcontractInteract";
 import WrongNetworkAlert from "./WrongNetworkAlert";
 import ConnectModal from "./WalletConnectModal";
 import UserDropdown from "./UserDropdown";
+import NotificationDropdown from "./NotificationDropdown";
 import logo from "../../../images/LogoCC-black.png";
 
 const Navbar = ({ showList }) => {
@@ -67,6 +68,7 @@ const Navbar = ({ showList }) => {
         </div>
       ) : (
         <div className="md:inline-flex hidden" onChange={(showWallet) => setShowWallet(false)}>
+          <NotificationDropdown />
           <UserDropdown />
         </div>
       )}

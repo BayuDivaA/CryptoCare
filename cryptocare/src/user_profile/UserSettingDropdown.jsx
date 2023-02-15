@@ -12,7 +12,7 @@ export default function UserSettingDropdown({ verif, handleUsername, handlePhoto
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="inline-flex w-full justify-center rounded-md bg-white p-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+        <Menu.Button className="inline-flex w-full justify-center rounded-md p-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
           <AiFillSetting className="h-5 w-5" aria-hidden="true" />
         </Menu.Button>
       </div>
