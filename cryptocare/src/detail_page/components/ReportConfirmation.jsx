@@ -1,9 +1,10 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
 import { useContractFunction } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
+import { toast, Flip } from "react-toastify";
 
 export default function ReportConfirmation({ isOpen, campaignAddress, closeHandle, alreadyReported }) {
   const [isLoading, setIsLoading] = useState();
@@ -11,11 +12,28 @@ export default function ReportConfirmation({ isOpen, campaignAddress, closeHandl
   const myContract = new Contract(campaignAddress, contractABICampaign);
   const { state, send } = useContractFunction(myContract, "reportCampaign", { transactionName: "Report Campaign" });
   const { status } = state;
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, autoClose: false });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
+    } else if (status === "Success") {
+      toast.update(mining.current, { render: "Success Report Campaign", type: "success", autoClose: 5000, isLoading: false, transition: Flip, theme: "colored" });
+    } else if (status === "Fail") {
+      toast.update(mining.current, { render: "Failed Report Campaign. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored" });
+    } else {
+    }
+  }, [state]);
 
   const ReportCampaignHandle = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    await send();
+    send();
     setIsLoading(false);
     closeHandle();
   };

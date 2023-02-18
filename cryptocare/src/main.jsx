@@ -17,6 +17,9 @@ const config = {
     coinbase: new CoinbaseWalletConnector(),
   },
   refresh: "everyBlock",
+  notifications: {
+    expirationPeriod: 0,
+  },
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

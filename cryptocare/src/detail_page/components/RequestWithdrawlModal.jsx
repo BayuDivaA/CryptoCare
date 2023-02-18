@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { SiEthereum } from "react-icons/si";
 import { contractABICampaign } from "../../smart_contract/constants";
@@ -6,6 +6,7 @@ import { Contract } from "@ethersproject/contracts";
 import { useContractFunction, useEthers } from "@usedapp/core";
 import { parseUnits } from "@ethersproject/units";
 import loader from "../../assets/loader_4.svg";
+import { toast, Flip } from "react-toastify";
 
 export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collectedFunds }) {
   const [isLoading, setIsLoading] = useState();
@@ -22,6 +23,24 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
   const { state, send } = useContractFunction(myContract, "createWithdrawl", { transactionName: "Create Request Withdrawl" });
   const { status, transaction } = state;
 
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+    } else if (status === "Success") {
+      toast.update(mining.current, { render: "Success Request Withdrawl.", type: "success", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+    } else if (status === "Fail") {
+      toast.error("Error change name.", { type: "success", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
+    } else {
+    }
+  }, [state]);
+
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     if (description === "" || value === "" || recipient === "") {
@@ -29,11 +48,9 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
     } else if (value > collectedFunds) {
       setAlertMinimal(true);
     } else {
-      setIsLoading(true);
-      await send(description, parseUnits(value, 18), recipient);
+      send(description, parseUnits(value, 18), recipient);
       setShowAlert(false);
       setAlertMinimal(false);
-      setIsLoading(false);
       cancel();
     }
   };

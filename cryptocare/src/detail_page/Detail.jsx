@@ -45,11 +45,12 @@ export default function DetailPage() {
 
   useEffect(() => {
     if (another === undefined) {
-      console.log("Fetching");
+      setIsLoading(true);
     } else {
       if (another) {
         const parsed = fetchAnotherDetail(another);
         setAnotherDetails(parsed);
+        setIsLoading(false);
       }
     }
   }, [another, campaign_address]);

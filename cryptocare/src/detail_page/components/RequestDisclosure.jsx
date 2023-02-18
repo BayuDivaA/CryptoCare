@@ -18,6 +18,7 @@ import { Contract } from "@ethersproject/contracts";
 import { contractABICampaign } from "../../smart_contract/constants";
 import loader_4 from "../../assets/loader_4.svg";
 import FinalizeWithdrawl from "./FinalizeWithdrawlConfirmation";
+import { toast, Flip } from "react-toastify";
 
 function RequestList({ idReq, value, description, createTimestamp, caddress, approvalsCount, creator, voterAll, complete, completeTimestamp, recipient }) {
   const { account } = useEthers();
@@ -41,6 +42,24 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
 
     await send(idReq);
   };
+
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+    } else if (status === "Success") {
+      toast.update(mining.current, { render: "Success Vote.", type: "success", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+    } else if (status === "Fail") {
+      toast.error("Fail Vote. Try again!", { type: "error", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
+    } else {
+    }
+  }, [state]);
 
   const [openFinalize, setOpenFinalize] = useState(false);
 
@@ -137,7 +156,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                 )}
 
                 {/* BUTTON WITHDRAWL IF SUCCESS */}
-                {ended && !complete && approvalsCount >= voterPercent && account === creator && (
+                {!ended && !complete && approvalsCount >= voterPercent && account === creator && (
                   <button onClick={() => setOpenFinalize(true)} className="bg-[#5719e9] hover:bg-[#622fd8] text-white font-bold py-2 px-2 rounded-full">
                     <RiSendPlaneFill />
                   </button>

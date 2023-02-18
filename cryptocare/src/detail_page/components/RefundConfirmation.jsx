@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
@@ -6,6 +6,7 @@ import { useContractFunction, useEthers } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
 import { getSingleUserDonateValue } from "../../smart_contract/SmartcontractInteract";
 import { formatEther } from "ethers/lib/utils";
+import { toast, Flip } from "react-toastify";
 
 export default function RefundConfirmation({ isOpen, campaignAddress, closeHandle }) {
   const [isLoading, setIsLoading] = useState();
@@ -15,11 +16,47 @@ export default function RefundConfirmation({ isOpen, campaignAddress, closeHandl
   const myContract = new Contract(campaignAddress, contractABICampaign);
   const { state, send } = useContractFunction(myContract, "refundDonate", { transactionName: "Refund" });
   const { status } = state;
+  const mining = React.useRef(null);
+
+  const MsgSuccess = ({ closeToast, transactions }) => (
+    <div className="flex flex-col">
+      <span>Success refund {refundAmount && formatEther(refundAmount?.toString())} Ethers</span>
+      <div className="flex mt-4">
+        <a href={"https://goerli-optimism.etherscan.io/tx/" + transactions?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
+          View Transaction
+        </a>
+      </div>
+    </div>
+  );
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, autoClose: false });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
+    } else if (status === "Success") {
+      toast.update(mining.current, {
+        render: <MsgSuccess transactions={state.transaction} />,
+        type: "success",
+        autoClose: false,
+        isLoading: false,
+        closeButton: true,
+        transition: Flip,
+        theme: "colored",
+      });
+    } else if (status === "Fail") {
+      toast.update(mining.current, { render: "Failed Refund. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored" });
+    } else {
+    }
+  }, [state]);
 
   const refundHandle = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    await send();
+    send();
     setIsLoading(false);
     closeHandle();
   };

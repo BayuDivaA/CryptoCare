@@ -67,13 +67,14 @@ const Navbar = ({ showList }) => {
           </button>
         </div>
       ) : (
-        <div className="md:inline-flex hidden" onChange={(showWallet) => setShowWallet(false)}>
-          <NotificationDropdown />
+        <div className="md:inline-flex hidden items-center justify-center" onChange={(showWallet) => setShowWallet(false)}>
+          {/* <NotificationDropdown /> */}
           <UserDropdown />
         </div>
       )}
       {/* FOR MOBILE */}
       <div className="flex relative md:hidden">
+        {/* <NotificationDropdown /> */}
         {!toggleMenu ? <HiMenuAlt4 fontSize={28} className="text-black md:hidden cursor-pointer" onClick={() => setToggleMenu(true)} /> : ""}
         {toggleMenu && (
           <ul className="z-1 fixed top-0 -right-2 py-2 w-screen h-screen md:hidden list-none flex flex-col justify-start items-center rounded-md bg-white bg-opacity-20 backdrop-blur-md text-black animate-slide-in">

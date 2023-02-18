@@ -8,20 +8,17 @@ import Page4 from "./components/pg4.form";
 import Page5 from "./components/pg5.summary";
 import Navbar from "../homepage/component/Navbar";
 import CreateCampaignLoader from "../components/CreateCampaignLoader";
-import SuccessCreate from "./components/SuccessCreateCampaigns";
-import FailCreate from "./components/FailCreateCampaigns";
 
 import { useContractFunction, useEthers } from "@usedapp/core";
 import { myContract } from "../smart_contract/constants";
 import { parseUnits } from "@ethersproject/units";
 import { checkAddress, getUsername } from "../smart_contract/SmartcontractInteract";
-import { useNavigate } from "react-router";
+import { toast, Flip } from "react-toastify";
 
 export default function Form() {
   const { account } = useEthers();
   const userName = getUsername(account);
   const verified = checkAddress(account); //Check verified address
-  // const [verified, setVerified] = useState();
   const [page, setPage] = useState(0);
   const [preview, setPreview] = useState();
   const [formData, setFormData] = useState({
@@ -38,12 +35,39 @@ export default function Form() {
   const { title, bannerUrl, story, duration, target, campaignType, category, minimum } = formData;
 
   const { state, send } = useContractFunction(myContract, "createCampaigns", { transactionName: "CreateCampaign" });
-  const { status, transaction } = state;
+  const { status, transaction, receipt } = state;
+
+  const MsgSuccess = ({ receipt }) => (
+    <div className="flex flex-col">
+      <span>Success Create New Campaign</span>
+      <div className="flex mt-4">
+        <a
+          href={"https://goerli-optimism.etherscan.io/tx/" + receipt?.contractAddress}
+          target="_blank"
+          className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center"
+        >
+          View Campaign
+        </a>
+      </div>
+    </div>
+  );
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    if (status === "Exception") {
+      toast.error("Transaction signature rejected", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
+    } else if (status === "Success") {
+      toast.success(<MsgSuccess receipt={receipt} />, { closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
+    } else if (status === "Fail") {
+      toast.error("Failed Create Campaign. Try Again!", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
+    } else {
+    }
+  }, [state]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
 
-    await send(title, bannerUrl, story, duration, parseUnits(target, 18), campaignType, category, parseUnits(minimum, 18));
+    send(title, bannerUrl, story, duration, parseUnits(target, 18), campaignType, category, parseUnits(minimum, 18));
   };
 
   useEffect(() => {
@@ -83,8 +107,6 @@ export default function Form() {
       <div className="min-h-screen overflow-hidden">
         <div className="gradient-bg-form">
           <Navbar showList={false} />
-          {status === "Success" && <SuccessCreate transactions={transaction} title={title} />}
-          {status === "Failed" && <FailCreate />}
 
           {status === "PendingSignature" && <CreateCampaignLoader text="Waiting Signature ..." />}
           {status === "Mining" && <CreateCampaignLoader text="Mining ..." />}

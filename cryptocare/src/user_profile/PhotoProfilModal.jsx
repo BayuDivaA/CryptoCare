@@ -1,8 +1,9 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { myContract } from "../smart_contract/constants";
 import { useContractFunction, useEthers } from "@usedapp/core";
 import loader from "../assets/loader_4.svg";
+import { toast } from "react-toastify";
 
 import { create, CID } from "ipfs-http-client";
 import { Buffer } from "buffer";
@@ -27,15 +28,33 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
 
   const { state, send } = useContractFunction(myContract, "setPhoto", { transactionName: "Set Photo" });
   const { status } = state;
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", className: "rotateY animated" });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, className: "rotateY animated", delay: 2000 });
+    } else if (status === "Success") {
+      toast.update(mining.current, { render: "Success change photo.", type: "success", isLoading: false, autoClose: 5000, className: "rotateY animated", delay: 2000 });
+    } else if (status === "Fail") {
+      toast.error("Error change photo.", { delay: 2000 });
+    } else {
+    }
+  }, [state]);
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     if (photoUrl === "") {
       setShowAlert(true);
     } else {
-      setIsLoading(true);
-      await send(account, photoUrl);
       setShowAlert(false);
+      setIsLoading(true);
+      send(account, photoUrl);
+      setPhotoUrl("");
       setIsLoading(false);
       cancel();
     }

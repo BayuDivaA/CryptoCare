@@ -51,13 +51,15 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
   return (
     <>
       {account && <UrgentDonateModal isOpen={isOpen} cancel={() => setIsOpen(false)} campaignAddress={campaignAddress} title={title} />}
-      <div className="inline-block px-2 cursor-pointer" onClick={handleDetails}>
+      <div className="inline-block px-2 cursor-pointer">
         <div className="w-72 max-w-xs overflow-hidden rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out">
           <div className="rounded-md">
             <img src={url} alt="BANNER CAMPAIGN" className="w-full h-40 object-cover rounded-t-md" />
           </div>
           <div className="p-2 flex-col">
-            <h3 className="text-lg font-bold pb-1">{title}</h3>
+            <h3 className="text-lg font-bold pb-1 hover:text-blue-900" onClick={handleDetails}>
+              {title}
+            </h3>
             <p className="text-xs mb-4 font-thin line-clamp-3 text-justify text-[#7B7D8C]">{story}</p>
             <div className="flex flex-row justify-between">
               <p className=" text-xs font-thin text-[#7B7D8C]">Collected Funds</p>

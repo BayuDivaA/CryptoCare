@@ -1,12 +1,12 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { BiDonateHeart } from "react-icons/bi";
 import { Dialog, Transition } from "@headlessui/react";
 import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
 import { useContractFunction, useEthers, useEtherBalance } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
-import SuccessAlert from "../../detail_page/components/SuccesDonateAlert";
 import { formatEther, parseEther } from "ethers/lib/utils";
+import { toast, Flip } from "react-toastify";
 
 export default function UrgentDonateModal({ isOpen, cancel, campaignAddress, title }) {
   const { account } = useEthers();
@@ -20,6 +20,34 @@ export default function UrgentDonateModal({ isOpen, cancel, campaignAddress, tit
   const { state, send } = useContractFunction(myContract, "contribute", { transactionName: "Donate Urgent Campaign" });
   const { status, transaction } = state;
 
+  const MsgSuccess = ({ closeToast, toastProps, transactions }) => (
+    <div className="flex flex-col">
+      <span>Donation Success</span>
+      <div className="flex mt-2">
+        <a href={"https://goerli-optimism.etherscan.io/tx/" + transactions?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
+          View Transaction
+        </a>
+      </div>
+    </div>
+  );
+  const mining = React.useRef(null);
+
+  useEffect(() => {
+    console.log(status);
+    if (status === "Mining") {
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, autoClose: false });
+    } else if (status === "PendingSignature") {
+      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+    } else if (status === "Exception") {
+      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
+    } else if (status === "Success") {
+      toast.update(mining.current, { render: <MsgSuccess transactions={transaction} />, type: "success", closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
+    } else if (status === "Fail") {
+      toast.update(mining.current, { render: "Failed Donation. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored", draggable: true });
+    } else {
+    }
+  }, [state]);
+
   const handleDonate = async (e) => {
     e.preventDefault();
     if (donatedValue <= 0 || donatedValue === "") {
@@ -28,7 +56,7 @@ export default function UrgentDonateModal({ isOpen, cancel, campaignAddress, tit
       setShowAlert2(true);
     } else {
       setIsLoading(true);
-      await send({ value: parseEther(donatedValue) });
+      send({ value: parseEther(donatedValue) });
       setDonatedValue("");
       setIsLoading(false);
       cancel();
@@ -37,7 +65,6 @@ export default function UrgentDonateModal({ isOpen, cancel, campaignAddress, tit
 
   return (
     <>
-      {status === "Success" && <SuccessAlert value={donatedValue} transactions={transaction} />}
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={() => {}}>
           <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">

@@ -6,10 +6,14 @@ import AllCampaigns from "./all_campaigns/AllCampaigns";
 import AdminPage from "./admin_page/AdminPage";
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <>
+      <ToastContainer position="top-left" draggable />
       <Routes>
         <Route path="/" exact element={<Home />} forceRefresh={true} />
         <Route path="/form" exact element={<Form />} />
