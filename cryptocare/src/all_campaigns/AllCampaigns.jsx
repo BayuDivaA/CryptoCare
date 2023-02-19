@@ -53,8 +53,6 @@ export default function AllCampaigns() {
       setCurrentItems(currentI);
       setIsLoading(false);
     }
-
-    console.log(campaigns);
   }, [campaignData, campaigns, currentFilter, searchValue]);
 
   function handleFilter(e) {
@@ -78,7 +76,7 @@ export default function AllCampaigns() {
           <h1 className="flex w-2/6  md:text-3xl text-lg font-bold ">Open Donations</h1>
           <div className=" flex mx-auto w-4/6 shadow-lg">
             <div className="flex rounded w-full">
-              <div className="z-10 flex ">
+              <div className="z-1 flex ">
                 <button className="flex font-medium px-5 h-10 text-sm bg-blue-300 text-white rounded-l-lg text-center items-center" type="button" onClick={toggleMenuHandle}>
                   <BiFilter className="text-base md:mr-2" /> <span className="hidden md:flex capitalize">{currentFilter}</span>
                 </button>
@@ -104,12 +102,14 @@ export default function AllCampaigns() {
           ) : currentItems.length === 0 ? (
             <div className="flex justify-center italic text-semibold w-full mt-8">Campaign Not Found</div>
           ) : (
-            <div className="grid md:grid-cols-4 grid-cols-1 gap-3">
-              {currentItems.map((campaign, i) => (
-                <div key={i} className="flex justify-center">
-                  <CampaignCard {...campaign} />
-                </div>
-              ))}
+            <div className="flex justify-center">
+              <div className="grid md:grid-cols-4 gap-3">
+                {currentItems.map((campaign, i) => (
+                  <div key={i} className="flex justify-center">
+                    <CampaignCard {...campaign} />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

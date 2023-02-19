@@ -8,6 +8,7 @@ import Page4 from "./components/pg4.form";
 import Page5 from "./components/pg5.summary";
 import Navbar from "../homepage/component/Navbar";
 import CreateCampaignLoader from "../components/CreateCampaignLoader";
+import { useNavigate } from "react-router";
 
 import { useContractFunction, useEthers } from "@usedapp/core";
 import { myContract } from "../smart_contract/constants";
@@ -37,27 +38,26 @@ export default function Form() {
   const { state, send } = useContractFunction(myContract, "createCampaigns", { transactionName: "CreateCampaign" });
   const { status, transaction, receipt } = state;
 
-  const MsgSuccess = ({ receipt }) => (
+  const MsgSuccess = ({ transaction }) => (
     <div className="flex flex-col">
       <span>Success Create New Campaign</span>
       <div className="flex mt-4">
-        <a
-          href={"https://goerli-optimism.etherscan.io/tx/" + receipt?.contractAddress}
-          target="_blank"
-          className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center"
-        >
-          View Campaign
+        <a href={"https://goerli-optimism.etherscan.io/tx/" + transaction?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
+          View Transaction
         </a>
       </div>
     </div>
   );
-  const mining = React.useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    cosole.log(receipt);
+    cosole.log(transaction);
     if (status === "Exception") {
       toast.error("Transaction signature rejected", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
     } else if (status === "Success") {
-      toast.success(<MsgSuccess receipt={receipt} />, { closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
+      toast.success(<MsgSuccess transaction={transaction} />, { closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
+      navigate("/");
     } else if (status === "Fail") {
       toast.error("Failed Create Campaign. Try Again!", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
     } else {

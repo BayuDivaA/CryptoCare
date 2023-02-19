@@ -50,7 +50,11 @@ export default function UserSettingDropdown({ verif, handleUsername, handlePhoto
             </Menu.Item>
             <Menu.Item>
               {({ active }) => (
-                <a onClick={{}} className={`${classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")} + ${verif && "hidden"} cursor-pointer`}>
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSfmnZAd77mtajxXMZilcSzHX3Le6I4ZORg5V_TfPSKLlUWi3g/viewform?usp=sf_link"
+                  target="_blank"
+                  className={`${classNames(active ? "bg-gray-100 text-gray-900" : "text-gray-700", "block px-4 py-2 text-sm")} + ${verif && "hidden"} cursor-pointer`}
+                >
                   <div className="flex items-center">
                     <BsFillPatchQuestionFill className="mr-2" />
                     Verification

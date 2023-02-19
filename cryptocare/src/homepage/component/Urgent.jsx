@@ -50,7 +50,7 @@ const Urgent = () => {
         </h1>
       </div>
       <div className="flex w-full items-center justify-around">
-        <MdChevronLeft onClick={slideLeft} className="hidden md:flex cursor-pointer items-center md:text-5xl text-8xl hover:rounded-full hover:bg-blue-300" />
+        <MdChevronLeft onClick={slideLeft} className="hidden md:flex cursor-pointer items-center md:text-5xl text-8xl hover:rounded-full text-blue-400 hover:bg-blue-400 hover:text-white" />
 
         {isLoading || urgent.length === 0 ? (
           <div className="flex items-center w-5/6 my-5 justify-center">
@@ -59,9 +59,9 @@ const Urgent = () => {
         ) : (
           <div className="flex w-5/6 items-center mt-2">
             <div className="flex overflow-x-scroll scroll scroll-smooth pb-5" id="slider">
-              <div className="flex flex-nowrap">
+              <div className="flex flex-nowrap gap-2">
                 {urgent.map((Campaign, i) => (
-                  <div className="" key={i}>
+                  <div className="flex" key={i}>
                     <UrgentCampaignCard {...Campaign} />
                   </div>
                 ))}
@@ -69,7 +69,7 @@ const Urgent = () => {
             </div>
           </div>
         )}
-        <MdChevronRight onClick={slideRight} className="hidden md:flex cursor-pointer items-center md:text-5xl text-8xl hover:rounded-full hover:bg-blue-300" />
+        <MdChevronRight onClick={slideRight} className="hidden md:flex cursor-pointer items-center md:text-5xl text-8xl hover:rounded-full text-blue-400 hover:bg-blue-400 hover:text-white" />
       </div>
     </div>
   );

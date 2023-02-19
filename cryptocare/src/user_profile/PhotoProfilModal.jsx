@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { myContract } from "../smart_contract/constants";
 import { useContractFunction, useEthers } from "@usedapp/core";
 import loader from "../assets/loader_4.svg";
-import { toast } from "react-toastify";
+import { toast, Flip } from "react-toastify";
 
 import { create, CID } from "ipfs-http-client";
 import { Buffer } from "buffer";

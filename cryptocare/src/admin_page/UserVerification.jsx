@@ -7,7 +7,6 @@ import UserVerificationButton from "./UserVerificationButton";
 export default function UserVerification() {
   const [userAddress, setUserAddress] = useState("");
   const isVerified = checkAddress(userAddress);
-  console.log(isVerified);
 
   return (
     <>

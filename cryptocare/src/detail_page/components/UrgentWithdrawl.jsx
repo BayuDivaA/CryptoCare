@@ -21,8 +21,6 @@ import FinalizeWithdrawl from "./FinalizeWithdrawlConfirmation";
 function RequestList({ idReq, value, description, completedTimestamp, recipient }) {
   const { account } = useEthers();
 
-  console.log(completedTimestamp);
-
   return (
     <>
       <Disclosure as="div" className=" flex mt-4 ">

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useEthers } from "@usedapp/core";
 import { getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
 import Loader from "../../components/CampaignDetailLoader";
+import { TypeAnimation } from "react-type-animation";
 
 const Welcome = () => {
   const { account } = useEthers();
@@ -70,10 +71,50 @@ const Welcome = () => {
         {/* SLOGAN CRYPTOCARE ---- */}
         <div className="flex flex-col md:pt-12 pt-5 w-5/6">
           <div className="flex flex-col">
-            <h1 className="md:text-5xl text-2xl text-center font-semibold md:leading-snug">
-              <span className="text-[#302CED]">Donate</span> your <span className="text-[#302CED] text-gradient">crypto assets</span> <br /> for those in need.
+            <h1 className="md:text-5xl text-2xl text-center font-semibold flex-col ">
+              <span className="justify-center">Donate </span>
+              <span className="text-[#302CED] justify-center">
+                <TypeAnimation
+                  sequence={[
+                    "Safely", // Types 'One'
+                    2000, // Waits 1s
+                    "Transparently", // Deletes 'One' and types 'Two'
+                    2000, // Waits 2s
+                    "Quickly", // Types 'Three' without deleting 'Two'
+                    2000, // Waits 2s
+                    "Cheaply", // Types 'Three' without deleting 'Two'
+                    2000, // Waits 2s,
+                  ]}
+                  wrapper="span"
+                  cursor={true}
+                  repeat={Infinity}
+                  style={{}}
+                />
+              </span>
+              <span className="flex justify-center"> Through</span>
+              <span className="text-[#302CED]  flex justify-center"> Blockchain Technology.</span>
             </h1>
-            <p className="md:text-lg text-sm text-center my-3 tracking-wide">Be a part of the breakthrough and make someone’s dream come true.</p>
+
+            <p className="md:text-lg text-sm text-center my-3 tracking-wide">
+              <TypeAnimation
+                sequence={[
+                  `"Be a part of the breakthrough and make someone’s dream come true."`, // Types 'One'
+                  7000, // Waits 1s
+                  `"Help us change the world with blockchain!"`, // Deletes 'One' and types 'Two'
+                  7000, // Waits 2s
+                  `"Donate today, change a life forever!"`, // Types 'Three' without deleting 'Two'
+                  7000, // Waits 2s
+                  `"Your support matters - help us make a difference!"`, // Types 'Three' without deleting 'Two'
+                  7000, // Waits 2s,
+                ]}
+                wrapper="p"
+                speed={99}
+                deletionSpeed={99}
+                cursor={false}
+                repeat={Infinity}
+                style={{}}
+              />
+            </p>
           </div>
         </div>
         {/* HOW TO n DONATE BUTTON ---- */}

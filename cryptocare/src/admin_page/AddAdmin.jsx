@@ -27,6 +27,7 @@ export default function AddAdmin() {
                 onChange={(e) => {
                   setUserAddress(e.target.value);
                 }}
+                // value={userAddress}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
                 id="address"
                 type="text"
@@ -34,7 +35,7 @@ export default function AddAdmin() {
               />
             </div>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-center">
               {isAddressAdmin !== undefined && (isAddressAdmin ? <DeleteAdminButton myContract={myContract} userAddress={userAddress} /> : <AddAdminButton myContract={myContract} userAddress={userAddress} />)}
             </div>
           </form>
