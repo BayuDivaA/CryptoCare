@@ -32,7 +32,7 @@ const MyCampaignCard = ({ title, url, timestamp, collectedFunds, creator, catego
     <>
       <EndCampaignModal isOpen={isOpen} campaignAddress={campaignAddress} closeHandle={() => setIsOpen(false)} />
       <div className="md:flex border border-gray-400 rounded">
-        <img class="object-cover w-full rounded-t-lg h-auto md:w-2/6 md:rounded-none md:rounded-l-lg" src={url} alt="" />
+        <img className="object-cover w-full rounded-t-lg h-auto md:w-2/6 md:rounded-none md:rounded-l-lg" src={url} alt="" />
         {/* <img src={url} className="h-32 md:h-52 md:w-2/6 w-full flex-none rounded-t object-cover md:rounded-t-none md:rounded-l text-center overflow-hidden bg-white" /> */}
 
         <div className="bg-white rounded-b md:rounded-b-none md:rounded-r py-2 px-4 flex flex-col justify-between leading-normal md:w-4/6 w-full">

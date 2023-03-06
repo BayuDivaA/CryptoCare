@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getRemainingTimeUntilMsTimestamp } from "../../utils/CountdownTimerUtils";
 import { useEthers } from "@usedapp/core";
 import UrgentDonateModal from "./UrgentDonateModal";
+import ConnectModal from "./WalletConnectModal";
 import { getAddresses } from "../../smart_contract/SmartcontractInteract";
 import { useCoingeckoPrice } from "@usedapp/coingecko";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,7 @@ export const CountdownTimer = ({ countdownTimestampsMs, durationCampaign }) => {
 const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedFunds, daftar }) => {
   const { account } = useEthers();
   const [isOpen, setIsOpen] = useState(false);
+  const [showWallet, setShowWallet] = useState(false);
   const address = getAddresses();
 
   const campaignAddress = address?.[daftar];
@@ -47,6 +49,10 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
   const handleDetails = () => {
     navigate(`/campaign_details/${campaignAddress}`);
   };
+
+  function handleOnClose() {
+    setShowWallet(false);
+  }
 
   return (
     <>
@@ -76,7 +82,7 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
             <CountdownTimer countdownTimestampsMs={timestamp} durationCampaign={duration} />
           </div>
           {!account ? (
-            <div className="w-full text-[#302CED] md:flex justify-center  py-2 px-7 mt-1">
+            <div onClick={() => setShowWallet(true)} className="w-full text-[#302CED] md:flex justify-center  py-2 px-7 mt-1 hover:font-bold">
               <span>Connect for Donate</span>
             </div>
           ) : (
@@ -86,6 +92,7 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
           )}
         </div>
       </div>
+      <ConnectModal onClose={handleOnClose} visible={showWallet} />
     </>
   );
 };

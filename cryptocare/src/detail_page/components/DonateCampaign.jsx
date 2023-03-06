@@ -36,7 +36,7 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
   const MsgSuccess = ({ closeToast, toastProps, transactions }) => (
     <div className="flex flex-col">
       <span>Donation Success</span>
-      <div className="flex mt-4">
+      <div className="flex">
         <a href={"https://goerli-optimism.etherscan.io/tx/" + transactions?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
           View Transaction
         </a>
@@ -47,13 +47,14 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
 
   useEffect(() => {
     console.log(status);
+    toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
     if (status === "Mining") {
       toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, autoClose: false });
     } else if (status === "PendingSignature") {
       mining.current = toast.loading("Waiting for Signature", { autoClose: false });
     } else if (status === "Exception") {
       toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
-    } else if (status === "Success") {
+    } else if (status === "None") {
       toast.update(mining.current, { render: <MsgSuccess transactions={transaction} />, type: "success", closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
     } else if (status === "Fail") {
       toast.update(mining.current, { render: "Failed Donation. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored", draggable: true });

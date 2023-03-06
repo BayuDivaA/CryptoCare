@@ -29,7 +29,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
 
   return (
     // <div className="inline-grid w-full rounded-lg justify-between shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out cursor-pointer">
-    <div className="inline-flex flex-col w-full justify-between rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out cursor-pointer ">
+    <div onClick={handleDetails} className="inline-flex flex-col w-full justify-between rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out cursor-pointer ">
       <div className="flex flex-col">
         <img src={url} alt="BANNER CAMPAIGN" className="w-full h-48 object-cover rounded-t-md" />
         <div className="px-2">

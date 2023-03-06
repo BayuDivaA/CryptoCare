@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getDetail, fetchCampaign, checkAddress, getUserDonateValue } from "../smart_contract/SmartcontractInteract";
 import { useParams } from "react-router";
-import { useEthers } from "@usedapp/core";
+import { useEthers, useTransactions } from "@usedapp/core";
 import { shortenAddress } from "../utils/shortenAddress";
 import { formatEther } from "@ethersproject/units";
 import { getUsername, getPhotoUrl } from "../smart_contract/SmartcontractInteract";
@@ -29,6 +29,8 @@ export default function myCampaign() {
   const [currentItems, setCurrentItems] = useState([]);
   const [userDonated, setUserDonated] = useState(0);
   const userVerif = checkAddress(account_address);
+
+  const { transactions } = useTransactions();
 
   function handleModalUsername() {
     setIsUsernameModal(true);
@@ -120,6 +122,26 @@ export default function myCampaign() {
           </div>
         </div>
         <div className="flex flex-col items-center py-3">
+          <div className="flex w-5/6 m-5 items-center justify-between md:justify-start">
+            {transactions.length !== 0 && (
+              <table>
+                <th>Name</th>
+                <th>Block hash</th>
+                <th>Block hash</th>
+                <th>Date</th>
+                {transactions.map((transaction) => {
+                  return (
+                    <tr>
+                      <td>{transaction.transactionName}</td>
+                      <td>{transaction.originalTransaction?.value}</td>
+                      <td>{transaction.receipt?.blockHash ?? "Pending..."}</td>
+                      <td>{new Date(transaction.submittedAt).toDateString()}</td>
+                    </tr>
+                  );
+                })}
+              </table>
+            )}
+          </div>
           <div className="flex w-5/6 m-5 items-center justify-between md:justify-start">
             <h1 className="md:text-3xl font-bold mr-6">User Deployed Campaigns</h1>
           </div>
