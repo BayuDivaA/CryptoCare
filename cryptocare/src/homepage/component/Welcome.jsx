@@ -148,7 +148,7 @@ const Welcome = () => {
           <div className="flex flex-row items-center py-2">
             <TbCurrencyEthereum className="md:text-6xl text-3xl mr-2" />
             <div className="flex flex-col">
-              <span className="md:text-2xl text-xl font-bold text-[#302CED]">{etherCount?.toFixed(3)}</span>
+              <span className="md:text-2xl text-xl font-bold text-[#302CED]">{etherCount}</span>
               <span className="md:text-xl text-sm">Ethers</span>
             </div>
           </div>

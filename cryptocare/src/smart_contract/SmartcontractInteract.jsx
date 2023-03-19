@@ -180,8 +180,9 @@ export function fetchAnotherDetail(data) {
     contributors: data?.[2],
     donations: data?.[3],
     minimContribution: formatEther((data?.[4]).toString()),
+    donateTime: data?.[5],
+    validation: data?.[6],
   };
-
   return parsedAnotherDetail;
 }
 

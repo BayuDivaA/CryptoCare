@@ -114,8 +114,8 @@ contract Campaign {
     uint minimContribution; // Minimal kontribusi agar bisa mendapatkan hak untuk voting
     string validation; // "wait", "accept", "reject"
 
-    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint[] memory){
-        return(voterCount, campaignReport,contributors, donations,minimContribution, donateTime);
+    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint[] memory, string memory){
+        return(voterCount, campaignReport, contributors, donations,minimContribution, donateTime, validation);
     }
 
     function getCampaign() public view returns(string memory, string memory, string[] memory, uint, uint, address, uint, string memory, uint, uint, uint,bool ){

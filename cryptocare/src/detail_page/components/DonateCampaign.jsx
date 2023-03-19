@@ -54,7 +54,7 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
       mining.current = toast.loading("Waiting for Signature", { autoClose: false });
     } else if (status === "Exception") {
       toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
-    } else if (status === "None") {
+    } else if (status === "Success") {
       toast.update(mining.current, { render: <MsgSuccess transactions={transaction} />, type: "success", closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
     } else if (status === "Fail") {
       toast.update(mining.current, { render: "Failed Donation. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored", draggable: true });
