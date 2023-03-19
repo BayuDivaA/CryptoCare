@@ -51,8 +51,8 @@ export default function Form() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    cosole.log(receipt);
-    cosole.log(transaction);
+    console.log(receipt);
+    console.log(transaction);
     if (status === "Exception") {
       toast.error("Transaction signature rejected", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
     } else if (status === "Success") {

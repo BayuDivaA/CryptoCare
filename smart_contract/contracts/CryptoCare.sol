@@ -99,6 +99,7 @@ contract Campaign {
     // Menyimpan riwayat dari setiap donasi (Address dana jumlah donasinya)
     address[] public contributors; 
     uint[] public donations;
+    uint[] public donateTime;
 
     uint campaignId;
     string campaignTitle; //*
@@ -111,9 +112,10 @@ contract Campaign {
     uint  campaignTypes; //*
     string campaignCategory; //*
     uint minimContribution; // Minimal kontribusi agar bisa mendapatkan hak untuk voting
+    string validation; // "wait", "accept", "reject"
 
-    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint){
-        return(voterCount, campaignReport,contributors, donations,minimContribution, voterCount);
+    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint[] memory){
+        return(voterCount, campaignReport,contributors, donations,minimContribution, donateTime);
     }
 
     function getCampaign() public view returns(string memory, string memory, string[] memory, uint, uint, address, uint, string memory, uint, uint, uint,bool ){
@@ -136,6 +138,7 @@ contract Campaign {
         donatursCount = 0;
         collectedFunds = 0;
         campaignActive = true;
+        validation = "wait";
     }
     
     function editCampaign(string memory _title, string memory _url, uint _minimum) public {
@@ -146,6 +149,14 @@ contract Campaign {
 
     function endCampaign() public {
         campaignActive = false;
+    }
+    
+    function accCampaign() public {
+        validation = "accept";
+    }
+
+    function rejectCampaign() public {
+        validation = "reject";
     }
 
     //Access Modifier ====
@@ -170,6 +181,7 @@ contract Campaign {
 
         contributors.push(msg.sender);
         donations.push(amount);
+        donateTime.push(block.timestamp);
 
         collectedFunds = collectedFunds + amount;
         donatedValue[msg.sender] = donatedValue[msg.sender]+ msg.value;
@@ -236,7 +248,6 @@ contract Campaign {
     }
 
     // Finalize Withdrawl
-    // UseEffect
     function finalizeWd(uint index) public onlyOwner onlyActive{
         WithdrawlStruct storage wd = withdrawls[index];
 
