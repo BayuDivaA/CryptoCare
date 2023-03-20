@@ -94,7 +94,7 @@ contract Campaign {
     uint public donatursCount; // Total dari jumlah seluruh donasi
     uint public campaignReport; // Jumlah report
     uint public collectedFunds; // Jumlah dana yang sudah terkumpul
-    bool campaignActive; // Cek apakah campaign masih aktif
+    uint campaignStatus; // "0-wait", "1-active", "2-reject", "3-end"
 
     // Menyimpan riwayat dari setiap donasi (Address dana jumlah donasinya)
     address[] public contributors; 
@@ -112,14 +112,13 @@ contract Campaign {
     uint  campaignTypes; //*
     string campaignCategory; //*
     uint minimContribution; // Minimal kontribusi agar bisa mendapatkan hak untuk voting
-    string validation; // "wait", "accept", "reject"
 
-    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint[] memory, string memory){
-        return(voterCount, campaignReport, contributors, donations,minimContribution, donateTime, validation);
+    function getDetailed() public view returns(uint, uint, address[] memory, uint[] memory, uint, uint[] memory){
+        return(voterCount, campaignReport, contributors, donations, minimContribution, donateTime);
     }
 
-    function getCampaign() public view returns(string memory, string memory, string[] memory, uint, uint, address, uint, string memory, uint, uint, uint,bool ){
-        return (campaignTitle, campaignUrl, campaignStory, campaignTimestamp, collectedFunds, campaignCreator, campaignTypes, campaignCategory, campaignTarget, donatursCount,campaignDuration,campaignActive);
+    function getCampaign() public view returns(string memory, string memory, string[] memory, uint, uint, address, uint, string memory, uint, uint, uint,uint ){
+        return (campaignTitle, campaignUrl, campaignStory, campaignTimestamp, collectedFunds, campaignCreator, campaignTypes, campaignCategory, campaignTarget, donatursCount, campaignDuration, campaignStatus);
     }
 
     constructor(uint _id, string memory _title, string memory _url, string memory _story, uint _date, uint _duration, address _creator, uint _target, uint _tipes, string memory _category, uint _minimum) {
@@ -137,8 +136,7 @@ contract Campaign {
 
         donatursCount = 0;
         collectedFunds = 0;
-        campaignActive = true;
-        validation = "wait";
+        campaignStatus = 0;
     }
     
     function editCampaign(string memory _title, string memory _url, uint _minimum) public {
@@ -146,17 +144,17 @@ contract Campaign {
         campaignUrl = _url;
         minimContribution = _minimum;
     }
-
-    function endCampaign() public {
-        campaignActive = false;
-    }
     
     function accCampaign() public {
-        validation = "accept";
+        campaignStatus = 1;
     }
 
     function rejectCampaign() public {
-        validation = "reject";
+        campaignStatus = 2;
+    }
+
+    function endCampaign() public {
+        campaignStatus = 3;
     }
 
     //Access Modifier ====
@@ -171,7 +169,7 @@ contract Campaign {
     }
 
     modifier onlyActive() {
-        require(campaignActive == true);
+        require(campaignStatus == 1);
         _;        
     }
 
@@ -288,7 +286,7 @@ contract Campaign {
         campaignReport++;
         reported[msg.sender] = true;
         if (campaignReport > (donatursCount/2) && donatursCount >= 3){
-            campaignActive = false;
+            campaignStatus = 4;
         }
     }
 

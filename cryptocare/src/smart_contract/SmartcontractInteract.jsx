@@ -14,17 +14,6 @@ export function getAddresses() {
   return value?.[0];
 }
 
-// GET DETAIL FROM A CAMPAIGN ADDRESS
-export function getSpecificCampaignDetail(address) {
-  const { value } =
-    useCall({
-      contract: new Contract(address, contractABICampaign),
-      method: "getCampaign",
-      args: [],
-    }) ?? {};
-  return value;
-}
-
 // GET ALL CAMPAIGN DETAIL (12)
 export function getDetail() {
   const addresses = getAddresses();
@@ -40,7 +29,7 @@ export function getDetail() {
   return results;
 }
 
-// FETCH DATA FROM CAMPAIGN DETAIL ^
+// FETCH DATA FROM ALL CAMPAIGN DETAIL ^ (12)
 export function fetchCampaign(data) {
   const parsedCampaigns = data?.map((result, id) => ({
     daftar: id,
@@ -55,13 +44,24 @@ export function fetchCampaign(data) {
     target: formatEther((result?.value?.[8]).toString()),
     donatursCount: (result?.value?.[9]).toNumber(),
     duration: (result?.value?.[10]).toNumber(),
-    active: result?.value?.[11],
+    status: (result?.value?.[11]).toNumber(),
   }));
 
   return parsedCampaigns;
 }
 
-// FETCH DATA FROM CAMPAIGN DETAIL ^
+// GET DETAIL FROM A CAMPAIGN ADDRESS (one)
+export function getSpecificCampaignDetail(address) {
+  const { value } =
+    useCall({
+      contract: new Contract(address, contractABICampaign),
+      method: "getCampaign",
+      args: [],
+    }) ?? {};
+  return value;
+}
+
+// FETCH DATA FROM A CAMPAIGN DETAIL ^ (one)
 export function fetchCampaignDetail(data) {
   const parsedSingleCampaigns = {
     title: data?.[0],
@@ -75,10 +75,36 @@ export function fetchCampaignDetail(data) {
     target: formatEther((data?.[8]).toString()),
     donatursCount: (data?.[9]).toNumber(),
     duration: (data?.[10]).toNumber(),
-    active: data?.[11],
+    status: (data?.[11]).toNumber(),
   };
 
   return parsedSingleCampaigns;
+}
+
+// GET ANOTHER DETAIL FROM A CAMPAIGN ADDRESS (one)
+export function getAnotherDetail(campaignAddress) {
+  const { value } =
+    useCall({
+      contract: new Contract(campaignAddress, contractABICampaign),
+      method: "getDetailed",
+      args: [],
+    }) ?? {};
+
+  return value;
+}
+
+// FETCH ANOTHER DETAIL FROM CAMPAIGN ADDRESS (one)
+export function fetchAnotherDetail(data) {
+  const parsedAnotherDetail = {
+    voterCount: (data?.[0]).toNumber(),
+    campaignReport: (data?.[1]).toNumber(),
+    contributors: data?.[2],
+    donations: data?.[3],
+    minimContribution: formatEther((data?.[4]).toString()),
+    donateTime: data?.[5],
+    validation: data?.[6],
+  };
+  return parsedAnotherDetail;
 }
 
 // CHECK ADDRESS VERIFIED
@@ -160,30 +186,6 @@ export function voterCount(campaign) {
     }) ?? {};
 
   return value?.[0];
-}
-
-export function getAnotherDetail(campaignAddress) {
-  const { value } =
-    useCall({
-      contract: new Contract(campaignAddress, contractABICampaign),
-      method: "getDetailed",
-      args: [],
-    }) ?? {};
-
-  return value;
-}
-
-export function fetchAnotherDetail(data) {
-  const parsedAnotherDetail = {
-    voterCount: (data?.[0]).toNumber(),
-    campaignReport: (data?.[1]).toNumber(),
-    contributors: data?.[2],
-    donations: data?.[3],
-    minimContribution: formatEther((data?.[4]).toString()),
-    donateTime: data?.[5],
-    validation: data?.[6],
-  };
-  return parsedAnotherDetail;
 }
 
 export function getUserDonateValue(userAddress) {

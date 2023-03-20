@@ -8,10 +8,10 @@ import { Contract } from "@ethersproject/contracts";
 // sixth : 0xEf09f9D9CC98052f3986177394e2D1b303783413
 //seventh: 0xED9296c5E21D2392BF99678296f728B569749068
 // ninth : 0xd9a80779E099EACD40184eFF6BeD82cBe04c35eB
-// tenth : 0xe110b6514Eea9c76b8Aa6b6Ab171c0b95284e894
+// tenth : 0xd6058Df35e44110bC9f9e9275244690f2568937C
 
 // CryptoCare SmartContract
-export const contractAddress = "0xe110b6514Eea9c76b8Aa6b6Ab171c0b95284e894";
+export const contractAddress = "0xd6058Df35e44110bC9f9e9275244690f2568937C";
 export const contractABI = compileFactory.abi;
 export const contractBytecode = compileFactory.bytecode;
 

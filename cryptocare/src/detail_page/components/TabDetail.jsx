@@ -8,7 +8,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function TabDetail({ title, creator, caddress, story, collectedFunds, type }) {
+export default function TabDetail({ title, creator, caddress, story, collectedFunds, type, status }) {
   return (
     <div className="w-full pb-16 pt-4">
       <Tab.Group>
@@ -23,7 +23,11 @@ export default function TabDetail({ title, creator, caddress, story, collectedFu
         </Tab.List>
         <Tab.Panels className="">
           <Tab.Panel key="Request" className={classNames("rounded-xl mt-4")}>
-            {type === 0 ? <RequestDisclosure address={caddress} creatorAddress={creator} collectedFunds={collectedFunds} /> : <UrgentWithdrawl address={caddress} creatorAddress={creator} collectedFunds={collectedFunds} />}
+            {type === 0 ? (
+              <RequestDisclosure address={caddress} creatorAddress={creator} collectedFunds={collectedFunds} status={status} />
+            ) : (
+              <UrgentWithdrawl address={caddress} creatorAddress={creator} collectedFunds={collectedFunds} status={status} />
+            )}
           </Tab.Panel>
 
           {/* PANEL ABOUT */}

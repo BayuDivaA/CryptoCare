@@ -74,7 +74,7 @@ function RequestList({ idReq, value, description, completedTimestamp, recipient 
   );
 }
 
-export default function RequestDisclosure({ address, creatorAddress, collectedFunds }) {
+export default function RequestDisclosure({ address, creatorAddress, collectedFunds, status }) {
   const { account } = useEthers();
   const campaignRequest = getCampaignRequeset(address);
   const voterCounter = voterCount(address);
@@ -93,7 +93,7 @@ export default function RequestDisclosure({ address, creatorAddress, collectedFu
         <div className="mx-auto w-full rounded-2xl bg-white">
           <div className="flex items-end justify-between text-base">
             <div className="flex text-blue-gray-900">{requestWd?.length} Withdrawls</div>
-            {account === creatorAddress && (
+            {account === creatorAddress && status !== 0 && (
               <button className="flex items-center text-white hover:bg-blue-600 bg-blue-300 p-2 rounded-md" onClick={() => setIsOpen(true)}>
                 <SiEthereum className="mr-2" /> Withdrawl Ethers
               </button>

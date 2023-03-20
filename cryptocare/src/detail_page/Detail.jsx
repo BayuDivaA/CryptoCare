@@ -75,7 +75,7 @@ export default function DetailPage() {
                 </div>
                 <div className="flex md:w-2/6 flex-col gap-2">
                   <CampaignAmount {...detail1} caddress={campaign_address} />
-                  {detail1.active && !ended && <DonateCampaign {...detail1} {...anotherDetails} caddress={campaign_address} />}
+                  {detail1.status === 1 && <DonateCampaign {...detail1} {...anotherDetails} caddress={campaign_address} />}
                   <DonationsHistory {...anotherDetails} caddress={campaign_address} />
                 </div>
               </div>

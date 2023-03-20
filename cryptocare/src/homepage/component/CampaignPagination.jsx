@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
 import CampaignCard from "./CampaignCard";
 import ReactPaginate from "react-paginate";
-import { getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
+import { getDetail, fetchCampaign, getAnotherDetail, getAddresses } from "../../smart_contract/SmartcontractInteract";
 import loader_2 from "../../assets/loader_2.svg";
 import { useNavigate } from "react-router";
 import dayjs from "dayjs";
 
 export default function PaginatedItems({ itemsPerPage, currentFilter }) {
   const campaignData = getDetail();
+  const address = getAddresses();
 
   const [isLoading, setIsLoading] = useState();
   const [campaigns, setCampaigns] = useState([]);
+  const [campaignsAnother, setCampaignsAnother] = useState([]);
   const [itemOffset, setItemOffset] = useState(0);
   const [currentItems, setCurrentItems] = useState([]);
   const [pageCount, setPageCount] = useState();
-
-  function handleOnFilter(e) {
-    setFilter(e);
-  }
 
   const endOffset = itemOffset + itemsPerPage;
 
   useEffect(() => {
     setIsLoading(true);
+
     campaignData.map((result) => {
       if (!result || result?.value === "undefined") {
         setIsLoading(true);
@@ -35,25 +34,28 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
 
     if (campaigns.length !== 0) {
       const parsedCampaigns = fetchCampaign(campaigns);
+
       const currentI = parsedCampaigns
         .reverse()
         .slice(itemOffset, endOffset)
         .filter(
           (campaign) =>
-            (campaign.active === true &&
+            (campaign.status === 1 &&
               currentFilter === "all" &&
               dayjs().unix() <
                 dayjs(campaign.timestamp * 1000)
                   .add(campaign.duration, "d")
                   .unix()) ||
-            (campaign.active === true &&
+            (campaign.status === 1 &&
               campaign.category === currentFilter &&
               dayjs().unix() <
                 dayjs(campaign.timestamp * 1000)
                   .add(campaign.duration, "d")
                   .unix())
         );
-      const pageC = Math.ceil(parsedCampaigns.length / itemsPerPage);
+      const pageC = Math.ceil(currentI.length / itemsPerPage);
+      const campaignAddress = address?.[currentI?.daftar];
+      console.log(campaignAddress);
       setCurrentItems(currentI);
       setPageCount(pageC);
 

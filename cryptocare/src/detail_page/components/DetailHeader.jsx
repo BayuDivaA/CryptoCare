@@ -8,7 +8,7 @@ import ReportConfirmation from "./ReportConfirmation";
 import RefundConfirmation from "./RefundConfirmation";
 import { UrgentTimeEnd } from "./TimerEnd";
 
-export default function HeaderDetail({ timestamp, title, donatursCount, caddress, duration, type, active }) {
+export default function HeaderDetail({ timestamp, title, donatursCount, caddress, duration, type, status }) {
   const { account } = useEthers();
   const ifVoter = checkIfDonor(caddress, account);
   const alreadyReported = checkIfReported(caddress, account);
@@ -45,13 +45,14 @@ export default function HeaderDetail({ timestamp, title, donatursCount, caddress
           {ifVoter && <ReportRefundDropdown handleReport={reportConfirmationHandle} handleRefund={refundConfirmationHandle} />}
         </div>
       </div>
-      {type === 1 && !ended && active && (
+      {type === 1 && status === 1 && (
         <div className="flex flex-row mt-2 bg-blue-300 justify-between items-center py-2 px-4 rounded-md text-white">
           <div className="">Ends In</div>
           <UrgentTimeEnd countdownTimestampsMs={timestamp} durationCampaign={duration} />
         </div>
       )}
-      {!active || ended ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">ENDED</div> : ""}
+      {status === 3 || ended ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">ENDED</div> : ""}
+      {status === 0 || ended ? <div className="flex flex-row mt-2 bg-blue-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">WAITING VALIDATION</div> : ""}
     </>
   );
 }

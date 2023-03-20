@@ -170,7 +170,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   );
 }
 
-export default function RequestDisclosure({ address, creatorAddress, collectedFunds }) {
+export default function RequestDisclosure({ address, creatorAddress, collectedFunds, status }) {
   const { account } = useEthers();
   const campaignRequest = getCampaignRequeset(address);
   const voterCounter = voterCount(address);
@@ -189,7 +189,7 @@ export default function RequestDisclosure({ address, creatorAddress, collectedFu
         <div className="mx-auto w-full rounded-2xl bg-white">
           <div className="flex items-end justify-between text-base">
             <div className="flex text-blue-gray-900">{requestWd?.length} Request</div>
-            {account === creatorAddress && (
+            {account === creatorAddress && status !== 0 && (
               <button className="flex items-center text-blue-600 hover:text-blue-900" onClick={() => setIsOpen(true)}>
                 <IoIosAddCircleOutline className="mr-2" /> Request Withdrawl
               </button>
