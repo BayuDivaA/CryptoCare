@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { myContract } from "../smart_contract/constants";
 import { checkIfAdmin } from "../smart_contract/SmartcontractInteract";
-import AddAdminButton from "./AddAdminButton";
-import DeleteAdminButton from "./DeleteAdminButton";
+import AddAdminButton from "./component/AddAdminButton";
+import DeleteAdminButton from "./component/DeleteAdminButton";
 
 export default function AddAdmin() {
   const [userAddress, setUserAddress] = useState("");

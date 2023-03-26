@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { myContract } from "../smart_contract/constants";
 import { checkAddress } from "../smart_contract/SmartcontractInteract";
-import UserUnverificationButton from "./UserUnverificationButton";
-import UserVerificationButton from "./UserVerificationButton";
+import UserUnverificationButton from "./component/UserUnverificationButton";
+import UserVerificationButton from "./component/UserVerificationButton";
 
 export default function UserVerification() {
   const [userAddress, setUserAddress] = useState("");

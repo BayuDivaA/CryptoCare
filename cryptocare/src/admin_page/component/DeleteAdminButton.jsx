@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useContractFunction } from "@usedapp/core";
-import loader from "../assets/loader_4.svg";
+import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
 
 export default function DeleteAdminButton({ userAddress, myContract }) {

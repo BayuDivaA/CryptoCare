@@ -1,23 +1,27 @@
 import React, { useState } from "react";
-import Navbar from "../homepage/component/Navbar";
+import { Route, Routes } from "react-router-dom";
 import { useEthers } from "@usedapp/core";
 import { checkIfAdmin } from "../smart_contract/SmartcontractInteract";
 import { useNavigate } from "react-router";
 import AddAdmin from "./AddAdmin";
 import UserVerification from "./UserVerification";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
 export default function AdminPage() {
   const { account } = useEthers();
   const navigate = useNavigate();
   const isAdmin = checkIfAdmin(account);
+  const [isActive, setIsActive] = useState("verification");
 
-  const handleVerifiedUser = async (e) => {
-    e.preventDefault();
-
-    setIsLoading(true);
-    await send(account);
-    setIsLoading(false);
-  };
+  function handleVerif() {
+    setIsActive("verification");
+    console.log(isActive);
+  }
+  function handleAdmin() {
+    setIsActive("admin");
+    console.log(isActive);
+  }
 
   return (
     <>
@@ -30,16 +34,23 @@ export default function AdminPage() {
           </button>
         </div>
       )}
-      <div className="gradient-bg-admin min-h-screen ">
-        <Navbar showList={false} />
-        <div className="flex items-center w-full justify-center">
+      <div className="relative sm:-8 p-4 gradient-bg-admin  min-h-screen flex flex-row">
+        <div className="sm:flex hidden mr-10 relative">
+          <Sidebar verif={handleVerif} admin={handleAdmin} />
+        </div>
+        <div className="flex-1 max-sm:w-full max-w-[1280px] mx-auto sm:pr-5">
+          <Navbar />
+          {isActive === "verification" && <UserVerification />}
+          {isActive === "admin" && <AddAdmin />}
+        </div>
+        {/* <div className="flex items-center w-full justify-center">
           <div className="flex flex-col items-center w-5/6 py-3">
             {isAdmin && <UserVerification />}
-            {/* ADD ADMIN FORM */}
+            {/* ADD ADMIN FORM 
             {account === "0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092" && <AddAdmin />}
             <p className="text-center text-gray-500 text-xs">&copy;2023 CryptoCare Foundation. All rights reserved.</p>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

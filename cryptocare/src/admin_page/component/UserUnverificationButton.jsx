@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useContractFunction } from "@usedapp/core";
-import loader from "../assets/loader_4.svg";
+import loader from "../../assets/loader_4.svg";
 
-export default function UserVerificationButton({ userAddress, myContract }) {
-  const { state, send } = useContractFunction(myContract, "setAddressVerified", { transactionName: "Verified User" });
+export default function UserUnverificationButton({ userAddress, myContract }) {
+  const { state, send } = useContractFunction(myContract, "setAddressUnverified", { transactionName: "Unverified User" });
   const [isLoading, setIsLoading] = useState(false);
   const { status } = state;
 
-  async function verificationUserHandle(e) {
+  async function unverificationUserHandle(e) {
     e.preventDefault();
 
     setIsLoading(true);
@@ -22,8 +22,8 @@ export default function UserVerificationButton({ userAddress, myContract }) {
           <img src={loader} alt="loader" className="w-7 h-7 object-contain" />
         </div>
       ) : (
-        <button onClick={verificationUserHandle} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
-          Verified
+        <button onClick={unverificationUserHandle} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+          Unverified
         </button>
       )}
     </>
