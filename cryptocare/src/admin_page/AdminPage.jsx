@@ -7,6 +7,7 @@ import AddAdmin from "./AddAdmin";
 import UserVerification from "./UserVerification";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import CampaignList from "./CampaignList";
 
 export default function AdminPage() {
   const { account } = useEthers();
@@ -20,6 +21,10 @@ export default function AdminPage() {
   }
   function handleAdmin() {
     setIsActive("admin");
+    console.log(isActive);
+  }
+  function handleCampaign() {
+    setIsActive("campaign");
     console.log(isActive);
   }
 
@@ -36,12 +41,13 @@ export default function AdminPage() {
       )}
       <div className="relative sm:-8 p-4 gradient-bg-admin  min-h-screen flex flex-row">
         <div className="sm:flex hidden mr-10 relative">
-          <Sidebar verif={handleVerif} admin={handleAdmin} />
+          <Sidebar verif={handleVerif} admin={handleAdmin} campaignList={handleCampaign} />
         </div>
         <div className="flex-1 max-sm:w-full max-w-[1280px] mx-auto sm:pr-5">
           <Navbar />
           {isActive === "verification" && <UserVerification />}
           {isActive === "admin" && <AddAdmin />}
+          {isActive === "campaign" && <CampaignList />}
         </div>
         {/* <div className="flex items-center w-full justify-center">
           <div className="flex flex-col items-center w-5/6 py-3">

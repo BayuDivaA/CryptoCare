@@ -14,7 +14,7 @@ const Icon = ({ styles, name, imgUrl, isActive, disabled, handleClick }) => (
   </div>
 );
 
-const Sidebar = ({ verif, admin }) => {
+const Sidebar = ({ verif, admin, campaignList }) => {
   const navigate = useNavigate();
   const { account } = useEthers();
   const [isActive, setIsActive] = useState("verification");
@@ -30,7 +30,6 @@ const Sidebar = ({ verif, admin }) => {
           <Icon
             name="verification"
             imgUrl={verified}
-            link="/"
             isActive={isActive}
             handleClick={() => {
               setIsActive("verification");
@@ -40,7 +39,6 @@ const Sidebar = ({ verif, admin }) => {
           <Icon
             name="addAdmin"
             imgUrl={addPerson}
-            link="/"
             isActive={isActive}
             handleClick={() => {
               setIsActive("addAdmin");
@@ -50,10 +48,10 @@ const Sidebar = ({ verif, admin }) => {
           <Icon
             name="campaign"
             imgUrl={campaign}
-            link="/"
             isActive={isActive}
             handleClick={() => {
               setIsActive("campaign");
+              campaignList();
             }}
           />
         </div>

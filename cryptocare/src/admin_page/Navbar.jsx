@@ -20,7 +20,6 @@ function SplitIconButton({ onClick, label, icon }) {
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [isActive, setIsActive] = useState("dashboard");
   const { account, deactivate } = useEthers();
   const [showWallet, setShowWallet] = useState(false);
 
