@@ -29,7 +29,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="flex md:flex-row flex-col-reverse justify-end mb-[35px] gap-6">
+      <div className="flex md:flex-row flex-col-reverse justify-end mb-[35px] gap-6 relative">
         <div className="md:inline-flex hidden flex-row justify-end items-center drop-shadow-xl ">
           {!account ? (
             <button

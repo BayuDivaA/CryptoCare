@@ -1,5 +1,4 @@
 import React from "react";
-import { Progress } from "@material-tailwind/react";
 import { SiEthereum } from "react-icons/si";
 import { MdVerified } from "react-icons/md";
 

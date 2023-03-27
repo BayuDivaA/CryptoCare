@@ -8,7 +8,7 @@ import { getAddresses } from "../smart_contract/SmartcontractInteract";
 import { useEthers } from "@usedapp/core";
 import EndCampaignModal from "./EndCampaignModal";
 
-const MyCampaignCard = ({ title, url, timestamp, collectedFunds, creator, category, donatursCount, daftar, story, active }) => {
+const MyCampaignCard = ({ title, url, timestamp, collectedFunds, creator, category, donatursCount, daftar, story, status }) => {
   const timeUnix = timestamp * 1000;
   const date = new Date(timeUnix);
   const day = date.toLocaleString("default", { day: "2-digit" });
@@ -63,12 +63,15 @@ const MyCampaignCard = ({ title, url, timestamp, collectedFunds, creator, catego
             <div className="flex items-center">
               <AiOutlineInfoCircle className="mr-2" />
               <div className="text-sm">
-                <p className="text-gray-900 leading-none capitalize">{active ? "Active" : "Ended"}</p>
+                {status === 0 && <p className="text-gray-900 leading-none capitalize">Validating</p>}
+                {status === 1 && <p className="text-gray-900 leading-none capitalize">Active</p>}
+                {status === 2 && <p className="text-gray-900 leading-none capitalize">Reject</p>}
+                {status === 3 && <p className="text-gray-900 leading-none capitalize">Ended</p>}
               </div>
             </div>
           </div>
           <div className="flex justify-end mt-2">
-            {creator === account && active && (
+            {creator === account && status === 1 && (
               <button onClick={() => setIsOpen(true)} type="button" className="font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 text-red-300 hover:text-red-900">
                 End Campaign
               </button>

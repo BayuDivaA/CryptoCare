@@ -52,7 +52,8 @@ export default function HeaderDetail({ timestamp, title, donatursCount, caddress
         </div>
       )}
       {status === 3 || ended ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">ENDED</div> : ""}
-      {status === 0 || ended ? <div className="flex flex-row mt-2 bg-blue-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">WAITING VALIDATION</div> : ""}
+      {status === 0 ? <div className="flex flex-row mt-2 bg-blue-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">WAITING VALIDATION</div> : ""}
+      {status === 2 ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">INVALID CAMPAIGN</div> : ""}
     </>
   );
 }
