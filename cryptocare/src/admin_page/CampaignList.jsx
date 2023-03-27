@@ -103,6 +103,8 @@ function CampaignList() {
           <img src={loader_2} alt="loader" className="flex w-[50px] h-[50px] object-contain mx-5 mb-2 justify-center" />
           <p className="flex text-base text-blue-gray-900 font-semibold">Loading Campaigns ...</p>
         </div>
+      ) : currentItems.length === 0 ? (
+        <div className="flex justify-center my-5 italic">No Campaigns Waiting</div>
       ) : (
         currentItems.map((campaign, i) => <Card key={i} {...campaign} image={campaign.url} title={campaign.title} createdBy={shortenAddress(campaign.creator)} />)
       )}
