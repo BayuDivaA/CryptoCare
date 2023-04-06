@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getDetail, fetchCampaign, getUserDonateValue } from "../smart_contract/SmartcontractInteract";
+import { getDetail, fetchCampaign, getUserDonateValue } from "../../smart_contract/SmartcontractInteract";
 import { useParams } from "react-router";
-import { formatEther } from "@ethersproject/units";
 import MyCampaignCard from "./MyCampaignCard";
-import loader_2 from "../assets/loader_2.svg";
+import loader_2 from "../../assets/loader_2.svg";
 
 export default function UserCampaign() {
   const { account_address } = useParams();

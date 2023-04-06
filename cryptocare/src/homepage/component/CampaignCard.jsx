@@ -32,42 +32,46 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
 
   return (
     <div className="inline-grid w-full rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out">
-      <img src={url} alt="BANNER CAMPAIGN" className="w-full h-56 object-cover rounded-t-md" />
-      <div className="p-2 w-full flex flex-col">
-        <div className="flex justify-between">
-          <div className="flex text-xs font-thin  text-[#7B7D8C] py-2">{dateFormat}</div>
-          <div className="flex text-xs font-thin  text-[#7B7D8C] py-2 capitalize	items-center">
-            <AiOutlineFolder className="mr-2" />
-            {category}
+      <div className="w-full flex flex-col justify-between">
+        <div className="flex flex-col">
+          <img src={url} alt="BANNER CAMPAIGN" className="w-full h-56 object-cover rounded-t-md" />
+          <div className="flex justify-between p-2">
+            <div className="flex text-xs font-thin  text-[#7B7D8C] py-2">{dateFormat}</div>
+            <div className="flex text-xs font-thin  text-[#7B7D8C] py-2 capitalize	items-center">
+              <AiOutlineFolder className="mr-2" />
+              {category}
+            </div>
+          </div>
+          <h3 className="md:text-lg text-base font-bold px-2">{title}</h3>
+          <div className="flex items-center mb-4 px-2">
+            <button onClick={() => window.open(`/profile/${creator}`, "_blank")} target="_blank" rel="noopener noreferrer" className="text-xs font-thin text-[#7B7D8C] cursor-pointer hover:text-[#393b4e]">
+              {shortenAddress(creator)}{" "}
+            </button>
+            {userVerif ? <MdVerified className="text-xs text-[#302CED] ml-1" /> : ""}
           </div>
         </div>
-        <h3 className="md:text-lg text-base font-bold">{title}</h3>
-        <div className="flex items-center mb-4">
-          <button onClick={() => window.open(`/profile/${creator}`, "_blank")} target="_blank" rel="noopener noreferrer" className="text-xs font-thin text-[#7B7D8C] cursor-pointer hover:text-[#393b4e]">
-            {shortenAddress(creator)}{" "}
+        <div className="flex flex-col px-2 pb-2">
+          <div className="flex pb-5 ">
+            <Progress value={100 - persentage} color="purple" variant="filled" />
+          </div>
+          <div className="flex flex-row justify-between">
+            <p className="text-xs font-thin text-[#7B7D8C]">Collected Funds</p>
+            <p className="text-xs font-thin text-[#7B7D8C]">Donaturs</p>
+          </div>
+          <div className="flex flex-row justify-between pb-2">
+            <div className="flex items-center">
+              <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
+              <p className=" md:text-lg text-base font-bold text-[#302CED]">
+                {collectedFunds}
+                <span className="text-xs font-thin text-[#7B7D8C]"> ${(etherPrice * collectedFunds).toFixed(2)}</span>{" "}
+              </p>
+            </div>
+            <div className="flex items-center md:text-lg text-base font-bold text-[#302CED]">{donatursCount}</div>
+          </div>
+          <button onClick={handleDetails} className="w-full text-[#302CED] text-base hover:text-white md:flex justify-center border border-[#302CED] hover:border-transparent py-1 px-7 mt-1 rounded-lg cursor-pointer hover:bg-[#302CED]">
+            <span>See Details</span>
           </button>
-          {userVerif ? <MdVerified className="text-xs text-[#302CED] ml-1" /> : ""}
         </div>
-        <div className="flex pb-5 ">
-          <Progress value={100 - persentage} color="purple" variant="filled" />
-        </div>
-        <div className="flex flex-row justify-between">
-          <p className="text-xs font-thin text-[#7B7D8C]">Collected Funds</p>
-          <p className="text-xs font-thin text-[#7B7D8C]">Donaturs</p>
-        </div>
-        <div className="flex flex-row justify-between pb-2">
-          <div className="flex items-center">
-            <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
-            <p className=" md:text-lg text-base font-bold text-[#302CED]">
-              {collectedFunds}
-              <span className="text-xs font-thin text-[#7B7D8C]"> ${(etherPrice * collectedFunds).toFixed(2)}</span>{" "}
-            </p>
-          </div>
-          <div className="flex items-center md:text-lg text-base font-bold text-[#302CED]">{donatursCount}</div>
-        </div>
-        <button onClick={handleDetails} className="w-full text-[#302CED] text-base hover:text-white md:flex justify-center border border-[#302CED] hover:border-transparent py-1 px-7 mt-1 rounded-lg cursor-pointer hover:bg-[#302CED]">
-          <span>See Details</span>
-        </button>
       </div>
     </div>
   );

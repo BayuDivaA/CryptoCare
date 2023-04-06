@@ -4,7 +4,7 @@ import { AiOutlineFolder, AiOutlineInfoCircle } from "react-icons/ai";
 import { FiUsers } from "react-icons/fi";
 
 import { useNavigate } from "react-router-dom";
-import { getAddresses } from "../smart_contract/SmartcontractInteract";
+import { getAddresses } from "../../smart_contract/SmartcontractInteract";
 import { useEthers } from "@usedapp/core";
 import EndCampaignModal from "./EndCampaignModal";
 

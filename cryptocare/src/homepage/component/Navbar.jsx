@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose, AiOutlineDisconnect, AiOutlineUserSwitch } from "react-icons/ai";
@@ -8,7 +8,7 @@ import { SiEthereum } from "react-icons/si";
 import { shortenAddress } from "../../utils/shortenAddress";
 
 import { useEthers, OptimismGoerli, useEtherBalance } from "@usedapp/core";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { formatEther } from "@ethersproject/units";
 import { checkIfAdmin } from "../../smart_contract/SmartcontractInteract";
 import WrongNetworkAlert from "./WrongNetworkAlert";
@@ -37,7 +37,6 @@ const Navbar = ({ showList }) => {
   const navigate = useNavigate();
   const reloadPage = () => {
     navigate("/");
-    // window.location.reload();
   };
 
   return (
@@ -48,7 +47,10 @@ const Navbar = ({ showList }) => {
       </div>
       {showList && (
         <ul className="text-black md:flex flex-row hidden list-none items-center flex-initial">
-          <li className="mx-4 cursor-pointer text-black my-2 text-lg"> Home </li>
+          <li className="mx-4 cursor-pointer text-black my-2 text-lg">
+            {" "}
+            <Link to="/">Home</Link>{" "}
+          </li>
           <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Tutorials</li>
           <li>
             <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 cursor-pointer text-black my-2 text-lg">

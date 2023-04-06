@@ -64,9 +64,9 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
           <h3 className="text-lg font-bold pb-1 hover:text-blue-900  mt-2" onClick={handleDetails}>
             {title}
           </h3>
-          <p className="text-xs mb-4 font-thin line-clamp-3 text-justify text-[#7B7D8C]">{story}</p>
         </div>
         <div className="flex flex-col">
+          <p className="text-xs mb-4 font-thin line-clamp-3 text-justify text-[#7B7D8C]">{story}</p>
           <div className="flex flex-row justify-between">
             <p className=" text-xs font-thin text-[#7B7D8C]">Collected Funds</p>
             <p className=" text-xs font-thin text-[#7B7D8C]">Ends in</p>

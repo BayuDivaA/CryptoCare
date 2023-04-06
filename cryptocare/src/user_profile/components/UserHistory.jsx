@@ -1,6 +1,6 @@
 import React from "react";
 import { useTransactions } from "@usedapp/core";
-import { shortenAddress2 } from "../utils/shortenAddress";
+import { shortenAddress2 } from "../../utils/shortenAddress";
 
 export default function UserHistory() {
   const { transactions } = useTransactions();

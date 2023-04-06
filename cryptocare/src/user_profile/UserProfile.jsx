@@ -6,17 +6,30 @@ import { shortenAddress } from "../utils/shortenAddress";
 import { formatEther } from "@ethersproject/units";
 import { getUsername, getPhotoUrl } from "../smart_contract/SmartcontractInteract";
 import Navbar from "../homepage/component/Navbar";
-import UserSettingDropdown from "./UserSettingDropdown";
-import UserNameModal from "./UserNameModal";
-import PhotoProfilModal from "./PhotoProfilModal";
+import UserSettingDropdown from "./components/UserSettingDropdown";
+import UserNameModal from "./components/UserNameModal";
+import PhotoProfilModal from "./components/PhotoProfilModal";
 import logo from "../../images/Logo.png";
-import UserCampaign from "./UserCampaign";
-import UserHistory from "./UserHistory";
+import UserCampaign from "./components/UserCampaign";
+import UserHistory from "./components/UserHistory";
 
-const Icon = ({ styles, name, isActive, disabled, handleClick }) => (
-  <div className={`px-2 h-[48px] rounded-[10px] hover:sidebar-glassmorphism ${isActive && isActive === name && "sidebar-glassmorphism"} flex justify-center items-center ${!disabled && "cursor-pointer"} ${styles}`} onClick={handleClick}>
-    {!isActive ? <span className=" h-1/2 text-white">{name}</span> : <span className={` h-1/2 ${isActive !== name && "grayscale"}`}>{name}</span>}
-  </div>
+{
+  /* <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white">
+  <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+      Cyan to blue
+  </span>
+</button> */
+}
+
+const Icon = ({ name, isActive, handleClick }) => (
+  <button
+    className={`${
+      isActive === name ? "from-green-400 to-blue-600 text-white" : "hover:from-green-400 hover:to-blue-600 hover:text-white"
+    }  inline-flex items-center justify-center p-0.5 mb-2 mr-2  text-sm font-medium rounded-lg bg-gradient-to-br `}
+    onClick={handleClick}
+  >
+    <span className={` px-5 py-2.5 transition-all ease-in duration-75 rounded-md`}>{name}</span>
+  </button>
 );
 
 export default function myCampaign() {

@@ -35,7 +35,7 @@ const Urgent = () => {
 
     if (campaigns.length !== 0) {
       const parsedCampaigns = fetchCampaign(campaigns);
-      const urgents = parsedCampaigns.reverse().filter((campaign) => campaign.type === 1 && campaign.active === true && campaign.timestamp >= dayjs(nowDay).subtract(campaign.duration, "d").unix());
+      const urgents = parsedCampaigns.reverse().filter((campaign) => campaign.type === 1 && campaign.status === 1 && campaign.timestamp >= dayjs(nowDay).subtract(campaign.duration, "d").unix());
 
       setUrgent(urgents);
       setIsLoading(false);

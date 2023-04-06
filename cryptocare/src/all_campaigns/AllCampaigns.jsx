@@ -70,7 +70,7 @@ export default function AllCampaigns() {
 
   return (
     <div className="gradient-bg-welcome min-h-screen ">
-      <Navbar showList={true} />{" "}
+      <Navbar showList={false} />{" "}
       <div className="flex flex-col items-center py-3 justify-center">
         <div className="flex w-5/6 m-5 items-center justify-between ">
           <h1 className="flex w-2/6  md:text-3xl text-lg font-bold ">Open Donations</h1>

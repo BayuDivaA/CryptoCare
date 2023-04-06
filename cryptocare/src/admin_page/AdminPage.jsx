@@ -10,7 +10,7 @@ import CampaignList from "./CampaignList";
 import ConnectModal from "../homepage/component/WalletConnectModal";
 
 export default function AdminPage() {
-  const { activateBrowserWallet, account } = useEthers();
+  const { account } = useEthers();
   const navigate = useNavigate();
   const isAdmin = checkIfAdmin(account);
   const [isActive, setIsActive] = useState("verification");
@@ -35,7 +35,7 @@ export default function AdminPage() {
 
   return (
     <>
-      {!isAdmin ? (
+      {account !== "0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092" && !isAdmin ? (
         <div className="fixed inset-0 z-1 h-screen gradient-bg-admin flex items-center justify-center flex-col">
           <p className="mt-[20px] font-epilogue font-bold text-[20px] text-blue-gray-900 text-center">You Are Not Admin</p>
           <p className=" font-epilogue font-bold text-[20px] text-blue-gray-900 text-center mb-[20px]">Please change your wallet address.</p>
@@ -55,13 +55,13 @@ export default function AdminPage() {
               navigate("/");
             }}
           >
-            Bac to Home
+            Back to Home
           </button>
         </div>
       ) : (
         <div className=" sm:-8 p-4 gradient-bg-admin  min-h-screen flex flex-row">
           <div className="sm:flex hidden mr-10 relative">
-            <Sidebar verif={handleVerif} admin={handleAdmin} campaignList={handleCampaign} />
+            <Sidebar verif={handleVerif} admin={handleAdmin} campaignList={handleCampaign} isAdmin={isAdmin} />
           </div>
           <div className="flex-1 max-sm:w-full max-w-[1280px] mx-auto sm:pr-5">
             <Navbar />

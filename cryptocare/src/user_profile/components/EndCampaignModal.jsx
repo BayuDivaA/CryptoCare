@@ -1,9 +1,9 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { contractABICampaign } from "../smart_contract/constants";
+import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
 import { useContractFunction } from "@usedapp/core";
-import loader from "../assets/loader_4.svg";
+import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
 
 export default function EndCampaignModal({ isOpen, campaignAddress, closeHandle }) {
