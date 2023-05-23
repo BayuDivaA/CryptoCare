@@ -55,7 +55,6 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
         );
       const pageC = Math.ceil(currentI.length / itemsPerPage);
       const campaignAddress = address?.[currentI?.daftar];
-      console.log(campaignAddress);
       setCurrentItems(currentI);
       setPageCount(pageC);
 

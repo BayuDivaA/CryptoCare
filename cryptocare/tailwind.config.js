@@ -8,6 +8,9 @@ module.exports = withMT({
         display: ["DM Sans", "sans-serif"],
         body: ["DM Sans", "sans-serif"],
       },
+      backgroundImage: {
+        about: "url('/images/bg-about.png')",
+      },
     },
   },
   plugins: [require("@tailwindcss/line-clamp", "flowbite/plugin")],

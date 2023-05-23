@@ -4,6 +4,8 @@ import DetailPage from "./detail_page/Detail";
 import UserProfile from "./user_profile/UserProfile";
 import AllCampaigns from "./all_campaigns/AllCampaigns";
 import AdminPage from "./admin_page/AdminPage";
+import AboutPage from "./about_page/AboutPage";
+import TutorialPage from "./tutorial_page/TutorialPage";
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -21,6 +23,8 @@ function App() {
         <Route path="/campaign_details/:campaign_address" exact element={<DetailPage />} />
         <Route path="/campaigns" exact element={<AllCampaigns />} />
         <Route path="/admin" exact element={<AdminPage />} />
+        <Route path="/about" exact element={<AboutPage />} />
+        <Route path="/how" exact element={<TutorialPage />} />
         {/* <Route component={Notfound} /> */}
       </Routes>
     </>

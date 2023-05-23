@@ -47,17 +47,21 @@ const Navbar = ({ showList }) => {
       </div>
       {showList && (
         <ul className="text-black md:flex flex-row hidden list-none items-center flex-initial">
-          <li className="mx-4 cursor-pointer text-black my-2 text-lg">
+          <li className="mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out">
             {" "}
             <Link to="/">Home</Link>{" "}
           </li>
-          <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Tutorials</li>
-          <li>
+          <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
+            <Link to="/how">Tutorials</Link>
+          </li>
+          <li className="hover:scale-105 transition ease-in-out">
             <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 cursor-pointer text-black my-2 text-lg">
               Bridge
             </a>
           </li>
-          <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Abouts</li>
+          <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
+            <Link to="/about">About</Link>
+          </li>
         </ul>
       )}
       {!account ? (
@@ -85,14 +89,19 @@ const Navbar = ({ showList }) => {
               </div>
               <AiOutlineClose onClick={() => setToggleMenu(false)} className="cursor-pointer font-bold" />
             </li>
-            <li className="mx-4 cursor-pointer text-black my-2 text-lg"> Home </li>
+            <li className="mx-4 cursor-pointer text-black my-2 text-lg">
+              {" "}
+              <Link to="/">Home</Link>{" "}
+            </li>
             <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Tutorials</li>
             <li>
               <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 cursor-pointer text-black my-2 text-lg">
                 Bridge
               </a>
             </li>
-            <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Abouts</li>
+            <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>
+              <Link to="/about">About</Link>
+            </li>
             {!account ? (
               <li onClick={() => setShowWallet(true)} className=" text-white font-bold bg-[#2557D6] py-2 px-7 mt-5 rounded-lg cursor-pointer hover:bg-[#2546bd] justify-center items-center inline-flex w-2/4">
                 <FaWallet className="mr-2" />
