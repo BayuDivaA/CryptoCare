@@ -27,7 +27,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   const voterTotal = voterAll.toNumber();
   const voterPercent = voterTotal / 2;
   const nowDay = dayjs();
-  const endDay = dayjs(createTimestamp.toNumber() * 1000).add("1", "m");
+  const endDay = dayjs(createTimestamp.toNumber() * 1000).add("1", "d");
   const ended = nowDay.unix() > endDay.unix();
 
   dayjs.extend(relativeTime);
