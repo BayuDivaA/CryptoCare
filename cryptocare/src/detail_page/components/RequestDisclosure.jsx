@@ -27,7 +27,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   const voterTotal = voterAll.toNumber();
   const voterPercent = voterTotal / 2;
   const nowDay = dayjs();
-  const endDay = dayjs(createTimestamp.toNumber() * 1000).add("1", "d");
+  const endDay = dayjs(createTimestamp.toNumber() * 1000).add("1", "m");
   const ended = nowDay.unix() > endDay.unix();
 
   dayjs.extend(relativeTime);
@@ -85,7 +85,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                       {ended && <div className="flex text-xs font-thin pt-2 ">Ended {endFromNow}</div>}
                       {!ended && (
                         <div className="flex text-xs font-thin pt-2 ">
-                          Approved by {(approvalsCount / voterTotal) * 100}% of {voterTotal} Voter
+                          Approved by {approvalsCount.toNumber()} out of {voterTotal} Voter
                         </div>
                       )}
                     </div>
