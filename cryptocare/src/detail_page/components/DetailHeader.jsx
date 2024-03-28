@@ -32,7 +32,7 @@ export default function HeaderDetail({ timestamp, title, donatursCount, caddress
     <>
       <ReportConfirmation isOpen={isReport} closeHandle={() => setIsReport(false)} campaignAddress={caddress} alreadyReported={alreadyReported} />
       <RefundConfirmation isOpen={isRefund} closeHandle={() => setIsRefund(false)} campaignAddress={caddress} />
-      <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-row items-center justify-between">
         <div className="">
           <div className="flex text-xl font-bold">{title}</div>
           <div className="flex text-sm text-blue-gray-300">{createDate}</div>
@@ -45,15 +45,18 @@ export default function HeaderDetail({ timestamp, title, donatursCount, caddress
           {ifVoter && <ReportRefundDropdown handleReport={reportConfirmationHandle} handleRefund={refundConfirmationHandle} />}
         </div>
       </div>
-      {type === 1 && status === 1 && (
-        <div className="flex flex-row mt-2 bg-blue-300 justify-between items-center py-2 px-4 rounded-md text-white">
+      {/* 0 - Waiting Validation, 1 - Active Campaign, 2 - Invalid Campaign, 3 - Ended Campaign */}
+      {type === 1 && !ended ? (
+        <div className="flex flex-row items-center justify-between px-4 py-2 mt-2 text-white bg-blue-300 rounded-md">
           <div className="">Ends In</div>
           <UrgentTimeEnd countdownTimestampsMs={timestamp} durationCampaign={duration} />
         </div>
+      ) : (
+        ""
       )}
-      {status === 3 || ended ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">ENDED</div> : ""}
-      {status === 0 ? <div className="flex flex-row mt-2 bg-blue-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">WAITING VALIDATION</div> : ""}
-      {status === 2 ? <div className="flex flex-row mt-2 bg-red-400 justify-center italic font-bold items-center py-2 px-4 rounded-md text-white">INVALID CAMPAIGN</div> : ""}
+      {status === 3 || ended ? <div className="flex flex-row items-center justify-center px-4 py-2 mt-2 italic font-bold text-white bg-red-400 rounded-md">ENDED</div> : ""}
+      {status === 0 ? <div className="flex flex-row items-center justify-center px-4 py-2 mt-2 italic font-bold text-white bg-blue-400 rounded-md">WAITING VALIDATION</div> : ""}
+      {status === 2 ? <div className="flex flex-row items-center justify-center px-4 py-2 mt-2 italic font-bold text-white bg-red-400 rounded-md">INVALID CAMPAIGN</div> : ""}
     </>
   );
 }

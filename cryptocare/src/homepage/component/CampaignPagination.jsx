@@ -76,15 +76,15 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
   return (
     <>
       {isLoading ? (
-        <div className="flex items-center flex-col my-5 justify-center">
+        <div className="flex flex-col items-center justify-center my-5">
           <img src={loader_2} alt="loader" className="flex w-[50px] h-[50px] object-contain mx-5 mb-2 justify-center" />
-          <p className="flex text-base text-blue-gray-900 font-semibold">Loading Campaigns ...</p>
+          <p className="flex text-base font-semibold text-blue-gray-900">Loading Campaigns ...</p>
         </div>
       ) : currentItems.length === 0 ? (
-        <div className="flex justify-center italic font-semibold w-full my-8 text-blue-gray-900">No campaings yet.</div>
+        <div className="flex justify-center w-full my-8 italic font-semibold text-blue-gray-900">No live campaings yet.</div>
       ) : (
         <div className="flex justify-center">
-          <div className="grid md:grid-cols-4 gap-3">
+          <div className="grid gap-3 md:grid-cols-4">
             {currentItems.map((campaign, i) => (
               <div key={i} className="flex justify-center">
                 <CampaignCard {...campaign} />
@@ -94,7 +94,7 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
         </div>
       )}
       {currentItems.length !== 0 && (
-        <div className="flex flex-row justify-between items-center">
+        <div className="flex flex-row items-center justify-between">
           <ReactPaginate
             breakLaber="..."
             nextLabel=">"

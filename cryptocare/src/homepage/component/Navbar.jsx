@@ -14,7 +14,7 @@ import { checkIfAdmin } from "../../smart_contract/SmartcontractInteract";
 import WrongNetworkAlert from "./WrongNetworkAlert";
 import ConnectModal from "./WalletConnectModal";
 import UserDropdown from "./UserDropdown";
-import logo from "../../../images/LogoCC-black.png";
+import logo from "../../../images/cc.png";
 
 const Navbar = ({ showList }) => {
   const { account, chainId, deactivate } = useEthers();
@@ -41,61 +41,76 @@ const Navbar = ({ showList }) => {
 
   return (
     // Akan melakukan md selama ukuran layar besar dari 768px
-    <nav className="flex justify-between items-center p-4 mx-4">
-      <div className="items-center flex-initial cursor-pointer" onClick={reloadPage}>
-        <img src={logo} alt="logo" className="w-40 " />
+    <nav className="flex p-4 mx-4">
+      <div className="flex justify-center w-full">
+        <div className="flex items-center flex-1 cursor-pointer" onClick={reloadPage}>
+          <img src={logo} alt="logo" className="w-10 mr-4 max-w-14" />
+          <h1 className="text-2xl font-semibold">Crypto Charity</h1>
+          <div className="flex items-start justify-start px-2 py-1 ml-2 bg-red-700 rounded-md">
+            <p className="text-xs font-thin text-white ">on Testnet</p>
+          </div>
+        </div>
+        {showList && (
+          <div className="flex justify-center md:flex-1">
+            <ul className="flex-row items-center flex-initial hidden text-black list-none md:flex">
+              {/* <li className="mx-4 my-2 text-lg text-black transition ease-in-out cursor-pointer hover:scale-105">
+                {" "}
+                <Link to="/">Home</Link>{" "}
+              </li> */}
+
+              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
+                <Link to="/about">About</Link>
+              </li>
+              <li className="transition ease-in-out hover:scale-105">
+                <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 my-2 text-lg text-black cursor-pointer">
+                  Bridge
+                </a>
+              </li>
+              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
+                <Link to="/faq">FAQ</Link>
+              </li>
+              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
+                <Link to="/faq">Contact Us</Link>
+              </li>
+            </ul>
+          </div>
+        )}
+        <div className="flex justify-end md:flex-1">
+          {!account ? (
+            <div className="flex">
+              <button type="button" onClick={() => setShowWallet(true)} className="text-white bg-[#2557D6] hover:bg-[#2557D6]/90 hidden font-medium rounded-lg text-sm px-5 py-2.5 text-center md:inline-flex items-center mr-2 mb-2">
+                <FaWallet className="mr-2" />
+                Connect
+              </button>
+            </div>
+          ) : (
+            <div className="items-center justify-center hidden md:inline-flex" onChange={(showWallet) => setShowWallet(false)}>
+              {/* <NotificationDropdown /> */}
+              <UserDropdown />
+            </div>
+          )}
+        </div>
       </div>
-      {showList && (
-        <ul className="text-black md:flex flex-row hidden list-none items-center flex-initial">
-          <li className="mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out">
-            {" "}
-            <Link to="/">Home</Link>{" "}
-          </li>
-          <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-            <Link to="/how">Tutorials</Link>
-          </li>
-          <li className="hover:scale-105 transition ease-in-out">
-            <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 cursor-pointer text-black my-2 text-lg">
-              Bridge
-            </a>
-          </li>
-          <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-            <Link to="/about">About</Link>
-          </li>
-        </ul>
-      )}
-      {!account ? (
-        <div className="flex">
-          <button type="button" onClick={() => setShowWallet(true)} className="text-white bg-[#2557D6] hover:bg-[#2557D6]/90 hidden font-medium rounded-lg text-sm px-5 py-2.5 text-center md:inline-flex items-center mr-2 mb-2">
-            <FaWallet className="mr-2" />
-            Connect
-          </button>
-        </div>
-      ) : (
-        <div className="md:inline-flex hidden items-center justify-center" onChange={(showWallet) => setShowWallet(false)}>
-          {/* <NotificationDropdown /> */}
-          <UserDropdown />
-        </div>
-      )}
       {/* FOR MOBILE */}
-      <div className="flex relative md:hidden">
+      <div className="relative flex md:hidden">
         {/* <NotificationDropdown /> */}
-        {!toggleMenu ? <HiMenuAlt4 fontSize={28} className="text-black md:hidden cursor-pointer" onClick={() => setToggleMenu(true)} /> : ""}
+        {!toggleMenu ? <HiMenuAlt4 fontSize={28} className="text-black cursor-pointer md:hidden" onClick={() => setToggleMenu(true)} /> : ""}
         {toggleMenu && (
-          <ul className="z-1 fixed top-0 -right-2 py-2 w-screen h-screen md:hidden list-none flex flex-col justify-start items-center rounded-md bg-white bg-opacity-20 backdrop-blur-md text-black animate-slide-in">
-            <li className="text-xl w-full my-2 justify-between flex px-8">
-              <div className="items-center flex-initial">
-                <img src={logo} alt="logo" className="w-40 cursor-pointer" />
+          <ul className="fixed top-0 flex flex-col items-center justify-start w-screen h-screen py-2 text-black list-none bg-white rounded-md z-1 -right-2 md:hidden bg-opacity-20 backdrop-blur-md animate-slide-in">
+            <li className="flex justify-between w-full px-8 my-2 text-xl">
+              <div className="flex items-center flex-initial">
+                <img src={logo} alt="logo" className="w-10 mr-4 cursor-pointer" />
+                <h1 className="text-2xl font-bold">Crypto Charity</h1>
               </div>
-              <AiOutlineClose onClick={() => setToggleMenu(false)} className="cursor-pointer font-bold" />
+              <AiOutlineClose onClick={() => setToggleMenu(false)} className="font-bold cursor-pointer" />
             </li>
-            <li className="mx-4 cursor-pointer text-black my-2 text-lg">
+            <li className="mx-4 my-2 text-lg text-black cursor-pointer">
               {" "}
               <Link to="/">Home</Link>{" "}
             </li>
             <li className={`mx-4 cursor-pointer text-black my-2 text-lg`}>Tutorials</li>
             <li>
-              <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 cursor-pointer text-black my-2 text-lg">
+              <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 my-2 text-lg text-black cursor-pointer">
                 Bridge
               </a>
             </li>
@@ -108,9 +123,9 @@ const Navbar = ({ showList }) => {
                 Connect
               </li>
             ) : (
-              <li className="text-black w-full justify-center items-center">
-                <hr className="my-8 h-px bg-black border-0" />
-                <div className="flex flex-col justify-center items-center gap-2 px-5">
+              <li className="items-center justify-center w-full text-black">
+                <hr className="h-px my-8 bg-black border-0" />
+                <div className="flex flex-col items-center justify-center gap-2 px-5">
                   <div className="flex  items-center cursor-pointer text-[#2557D6] hover:bg-[#2557D6] hover:text-white rounded-md py-1 px-2 w-full">
                     <FaWallet className="mr-2 text-lg" /> {shortenAddress(account)}
                   </div>

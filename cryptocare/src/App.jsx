@@ -5,7 +5,7 @@ import UserProfile from "./user_profile/UserProfile";
 import AllCampaigns from "./all_campaigns/AllCampaigns";
 import AdminPage from "./admin_page/AdminPage";
 import AboutPage from "./about_page/AboutPage";
-import TutorialPage from "./tutorial_page/TutorialPage";
+import FAQPage from "./tutorial_page/FAQPage";
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -24,7 +24,7 @@ function App() {
         <Route path="/campaigns" exact element={<AllCampaigns />} />
         <Route path="/admin" exact element={<AdminPage />} />
         <Route path="/about" exact element={<AboutPage />} />
-        <Route path="/how" exact element={<TutorialPage />} />
+        <Route path="/faq" exact element={<FAQPage />} />
         {/* <Route component={Notfound} /> */}
       </Routes>
     </>

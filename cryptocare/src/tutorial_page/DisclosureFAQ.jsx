@@ -13,7 +13,7 @@ function ButtonComp({ text, open }) {
   );
 }
 
-const TutorialsButton = () => {
+const DisclosureFAQ = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [connectOpen, setConnectOpen] = useState(false);
   const [requestOpen, setRequestOpen] = useState(false);
@@ -64,9 +64,9 @@ const TutorialsButton = () => {
     <>
       <div className="flex justify-center min-h-screen mt-10">
         <div className="w-5/6">
-          <h1 className="text-4xl font-extrabold mb-8">How To </h1>
+          <h1 className="mb-8 text-4xl font-extrabold">How To </h1>
           <div className="flex justify-center">
-            <div className="w-3/4 grid grid-cols-2 gap-2">
+            <div className="grid w-3/4 grid-cols-2 gap-2">
               <ButtonComp text="Connect Wallet" open={openConnect} />
               <ButtonComp text="Create Campaign" open={openCreate} />
               <ButtonComp text="Request Withdrawl" open={openRequest} />
@@ -87,16 +87,16 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Connect Wallet
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li>
-                        Download wallet extension <span className="font-bold italic">(Metamask, Coinbase, etc)</span>
+                        Download wallet extension <span className="italic font-bold">(Metamask, Coinbase, etc)</span>
                       </li>
                       <li>Import your private key or create new address</li>
                       <li>
@@ -111,7 +111,7 @@ const TutorialsButton = () => {
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -130,16 +130,16 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Create Campaign
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li>
-                        Download wallet extension <span className="font-bold italic">(Metamask, Coinbase, etc)</span>
+                        Download wallet extension <span className="italic font-bold">(Metamask, Coinbase, etc)</span>
                       </li>
                       <li>Import your private key or create new address</li>
                       <li>
@@ -154,7 +154,7 @@ const TutorialsButton = () => {
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -173,21 +173,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Request Withdrawl for Normal Campaign
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -206,21 +206,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Withdrawl Campaign Funds
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -239,21 +239,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Donate
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -272,21 +272,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Vote Request Withdrawl
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -305,21 +305,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Refund
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -338,21 +338,21 @@ const TutorialsButton = () => {
           </Transition.Child>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex items-center justify-center min-h-full p-4 text-center">
               <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/5 p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                   <Dialog.Title as="h3" className="text-2xl font-medium leading-6 text-gray-900">
                     How to Report Campaign
                   </Dialog.Title>
                   <div className="mt-3">
-                    <ol className=" pl-3 list-inside list-decimal leading-loose">
+                    <ol className="pl-3 leading-loose list-decimal list-inside ">
                       <li></li>
                     </ol>
                   </div>
                   <div className="mt-4">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Got it, thanks!
@@ -368,4 +368,4 @@ const TutorialsButton = () => {
   );
 };
 
-export default TutorialsButton;
+export default DisclosureFAQ;

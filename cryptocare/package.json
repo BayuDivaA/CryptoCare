@@ -17,6 +17,7 @@
     "@web3modal/ethereum": "^2.0.0",
     "@web3modal/react": "^2.0.0",
     "buffer": "^6.0.3",
+    "caniuse-lite": "^1.0.30001581",
     "dayjs": "^1.11.7",
     "ethers": "^5.7.2",
     "flowbite": "^1.6.3",
