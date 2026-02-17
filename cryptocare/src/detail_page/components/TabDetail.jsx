@@ -37,13 +37,13 @@ export default function TabDetail({ title, creator, caddress, story, collectedFu
               <div className="flex font-bold text-sm text-blue-gray-900 md:text-base">{title}</div>
               <div className="flex text-sm text-blue-300 mt-2 md:text-sm">Creator Address</div>
               <div className="flex font-bold text-sm text-blue-gray-900 md:text-base">
-                <a href={"https://goerli-optimism.etherscan.io/address/" + creator} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
+                <a href={"https://sepolia-optimism.etherscan.io/address/" + creator} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
                   {creator && shortenAddress2(creator)}
                 </a>
               </div>
               <div className="flex text-sm text-blue-300 mt-2 md:text-sm">Campaign Address</div>
               <div className="flex font-bold text-sm text-blue-gray-900 md:text-base">
-                <a href={"https://goerli-optimism.etherscan.io/address/" + caddress} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
+                <a href={"https://sepolia-optimism.etherscan.io/address/" + caddress} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
                   {caddress && shortenAddress2(caddress)}
                 </a>
               </div>

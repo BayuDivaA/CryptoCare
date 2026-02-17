@@ -7,10 +7,11 @@ import { SiEthereum } from "react-icons/si";
 
 import { shortenAddress } from "../../utils/shortenAddress";
 
-import { useEthers, OptimismGoerli, useEtherBalance } from "@usedapp/core";
+import { useEthers, useEtherBalance } from "@usedapp/core";
 import { useNavigate, Link } from "react-router-dom";
 import { formatEther } from "@ethersproject/units";
 import { checkIfAdmin } from "../../smart_contract/SmartcontractInteract";
+import { OPTIMISM_SEPOLIA_CHAIN_ID } from "../../smart_contract/network";
 import WrongNetworkAlert from "./WrongNetworkAlert";
 import ConnectModal from "./WalletConnectModal";
 import UserDropdown from "./UserDropdown";
@@ -29,10 +30,12 @@ const Navbar = ({ showList }) => {
   }
 
   useEffect(() => {
-    if (chainId !== OptimismGoerli.chainId) {
+    if (account && chainId && chainId !== OPTIMISM_SEPOLIA_CHAIN_ID) {
       setIsWrongNetwork(true);
+    } else {
+      setIsWrongNetwork(false);
     }
-  }, [chainId]);
+  }, [account, chainId]);
 
   const navigate = useNavigate();
   const reloadPage = () => {

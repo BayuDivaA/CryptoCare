@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useEthers, OptimismGoerli, useEtherBalance, shortenAddress } from "@usedapp/core";
+import { useEthers, shortenAddress } from "@usedapp/core";
 import { RiShutDownFill, RiShutDownLine } from "react-icons/ri";
 import ConnectModal from "../homepage/component/WalletConnectModal";
 import logout from "../../images/logout.svg";

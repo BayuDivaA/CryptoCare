@@ -1,70 +1,64 @@
 import React, { useState, useEffect } from "react";
 import CampaignCard from "./CampaignCard";
 import ReactPaginate from "react-paginate";
-import { getDetail, fetchCampaign, getAnotherDetail, getAddresses } from "../../smart_contract/SmartcontractInteract";
+import { getDetail, fetchCampaign, getAddresses } from "../../smart_contract/SmartcontractInteract";
 import loader_2 from "../../assets/loader_2.svg";
 import { useNavigate } from "react-router";
 import dayjs from "dayjs";
 
 export default function PaginatedItems({ itemsPerPage, currentFilter }) {
   const campaignData = getDetail();
-  const address = getAddresses();
+  const addresses = getAddresses();
 
-  const [isLoading, setIsLoading] = useState();
-  const [campaigns, setCampaigns] = useState([]);
-  const [campaignsAnother, setCampaignsAnother] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [itemOffset, setItemOffset] = useState(0);
   const [currentItems, setCurrentItems] = useState([]);
-  const [pageCount, setPageCount] = useState();
-
-  const endOffset = itemOffset + itemsPerPage;
+  const [pageCount, setPageCount] = useState(0);
 
   useEffect(() => {
-    setIsLoading(true);
-
-    campaignData.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setCampaigns(campaignData);
-      }
-    });
-
-    if (campaigns.length !== 0) {
-      const parsedCampaigns = fetchCampaign(campaigns);
-
-      const currentI = parsedCampaigns
-        .reverse()
-        .slice(itemOffset, endOffset)
-        .filter(
-          (campaign) =>
-            (campaign.status === 1 &&
-              currentFilter === "all" &&
-              dayjs().unix() <
-                dayjs(campaign.timestamp * 1000)
-                  .add(campaign.duration, "d")
-                  .unix()) ||
-            (campaign.status === 1 &&
-              campaign.category === currentFilter &&
-              dayjs().unix() <
-                dayjs(campaign.timestamp * 1000)
-                  .add(campaign.duration, "d")
-                  .unix())
-        );
-      const pageC = Math.ceil(currentI.length / itemsPerPage);
-      const campaignAddress = address?.[currentI?.daftar];
-      setCurrentItems(currentI);
-      setPageCount(pageC);
-
-      setIsLoading(false);
+    if (addresses === undefined) {
+      setIsLoading(true);
+      return;
     }
-  }, [campaignData, campaigns, currentFilter]);
+
+    const pendingResult =
+      campaignData.length > 0 &&
+      campaignData.some((result) => !result || result?.value === undefined);
+
+    if (pendingResult) {
+      setIsLoading(true);
+      return;
+    }
+
+    const parsedCampaigns = fetchCampaign(campaignData) || [];
+    const filteredCampaigns = parsedCampaigns
+      .reverse()
+      .filter(
+        (campaign) =>
+          (campaign.status === 1 &&
+            currentFilter === "all" &&
+            dayjs().unix() <
+              dayjs(campaign.timestamp * 1000)
+                .add(campaign.duration, "d")
+                .unix()) ||
+          (campaign.status === 1 &&
+            campaign.category === currentFilter &&
+            dayjs().unix() <
+              dayjs(campaign.timestamp * 1000)
+                .add(campaign.duration, "d")
+                .unix())
+      );
+    const endOffset = itemOffset + itemsPerPage;
+    const currentI = filteredCampaigns.slice(itemOffset, endOffset);
+    const pageC = Math.ceil(filteredCampaigns.length / itemsPerPage);
+
+    setCurrentItems(currentI);
+    setPageCount(pageC || 0);
+    setIsLoading(false);
+  }, [addresses, campaignData, currentFilter, itemOffset, itemsPerPage]);
 
   const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % dummyData.length;
-    console.log(`User requested page number ${event.selected}, which is offset ${newOffset}`);
+    const newOffset = event.selected * itemsPerPage;
     setItemOffset(newOffset);
   };
 

@@ -26,7 +26,7 @@ export default function UrgentWithdrawlModal({ isOpen, cancel, caddress, collect
     <div className="flex flex-col">
       <span>Success Withdrawl</span>
       <div className="flex mt-4">
-        <a href={"https://goerli-optimism.etherscan.io/tx/" + transactions?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
+        <a href={"https://sepolia-optimism.etherscan.io/tx/" + transactions?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
           View Transaction
         </a>
       </div>

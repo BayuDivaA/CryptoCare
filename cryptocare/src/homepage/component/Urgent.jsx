@@ -1,7 +1,7 @@
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import React, { useState, useEffect } from "react";
 import UrgentCampaignCard from "./UrgentCard";
-import { getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
+import { getAddresses, getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
 import dayjs from "dayjs";
 
 const slideLeft = () => {
@@ -14,33 +14,40 @@ const slideRight = () => {
 };
 
 const Urgent = () => {
+  const addresses = getAddresses();
   const campaignData = getDetail();
   const [isLoading, setIsLoading] = useState(true);
-
-  const [campaigns, setCampaigns] = useState([]);
   const [urgent, setUrgent] = useState([]);
 
-  const nowDay = dayjs();
-
   useEffect(() => {
-    campaignData.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setCampaigns(campaignData);
-      }
-    });
-
-    if (campaigns.length !== 0) {
-      const parsedCampaigns = fetchCampaign(campaigns);
-      const urgents = parsedCampaigns.reverse().filter((campaign) => campaign.type === 1 && campaign.status === 1 && campaign.timestamp >= dayjs(nowDay).subtract(campaign.duration, "d").unix());
-
-      setUrgent(urgents);
-      setIsLoading(false);
+    if (addresses === undefined) {
+      setIsLoading(true);
+      return;
     }
-  }, [campaignData, campaigns]);
+
+    const pendingResult =
+      campaignData.length > 0 &&
+      campaignData.some((result) => !result || result?.value === undefined);
+
+    if (pendingResult) {
+      setIsLoading(true);
+      return;
+    }
+
+    const parsedCampaigns = fetchCampaign(campaignData) || [];
+    const urgents = parsedCampaigns
+      .reverse()
+      .filter(
+        (campaign) =>
+          campaign.type === 1 &&
+          campaign.status === 1 &&
+          campaign.timestamp >=
+            dayjs().subtract(campaign.duration, "d").unix()
+      );
+
+    setUrgent(urgents);
+    setIsLoading(false);
+  }, [addresses, campaignData]);
 
   return (
     <div className="flex flex-col items-center bg-[#EFF2F2] py-3">

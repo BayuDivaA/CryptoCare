@@ -4,17 +4,13 @@ import { HiOutlineUsers } from "react-icons/hi";
 import { BiDonateHeart } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { useEthers } from "@usedapp/core";
-import { getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
-import Loader from "../../components/CampaignDetailLoader";
+import { getAddresses, getDetail, fetchCampaign } from "../../smart_contract/SmartcontractInteract";
 import { TypeAnimation } from "react-type-animation";
-import { formatEther } from "ethers/lib/utils";
 
 const Welcome = () => {
   const { account } = useEthers();
+  const addresses = getAddresses();
   const campaignData = getDetail();
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [campaigns, setCampaigns] = useState([]);
   const navigate = useNavigate();
   const [campaignsCount, setCampaignsCount] = useState(0);
   const [donorsCount, setDonorsCount] = useState(0);
@@ -29,42 +25,27 @@ const Welcome = () => {
   };
 
   useEffect(() => {
-    campaignData.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setCampaigns(campaignData);
-      }
-    });
-
-    if (campaigns.length !== 0) {
-      const parsedCampaigns = fetchCampaign(campaigns);
-      setCampaignsCount(parsedCampaigns.length);
-
-      const donor = parsedCampaigns?.map((a) => {
-        return a.donatursCount;
-      });
-
-      const ether = parsedCampaigns?.map((a) => {
-        return a.collectedFunds;
-      });
-
-      setDonorsCount(
-        donor.reduce((a, b) => {
-          return a + b;
-        })
-      );
-      setEtherCount(
-        ether.reduce((a, b) => {
-          return +a + +b;
-        })
-      );
-
-      setIsLoading(false);
+    if (addresses === undefined) {
+      return;
     }
-  }, [campaignData, campaigns]);
+
+    const pendingResult =
+      campaignData.length > 0 &&
+      campaignData.some((result) => !result || result?.value === undefined);
+
+    if (pendingResult) {
+      return;
+    }
+
+    const parsedCampaigns = fetchCampaign(campaignData) || [];
+    setCampaignsCount(parsedCampaigns.length);
+
+    const donor = parsedCampaigns.map((a) => a.donatursCount);
+    const ether = parsedCampaigns.map((a) => Number(a.collectedFunds || 0));
+
+    setDonorsCount(donor.reduce((a, b) => a + b, 0));
+    setEtherCount(ether.reduce((a, b) => a + b, 0));
+  }, [addresses, campaignData]);
 
   return (
     <>
@@ -108,7 +89,7 @@ const Welcome = () => {
                   `"Your support matters - help us make a difference!"`, // Types 'Three' without deleting 'Two'
                   7000, // Waits 2s,
                 ]}
-                wrapper="p"
+                wrapper="span"
                 speed={99}
                 deletionSpeed={99}
                 cursor={false}

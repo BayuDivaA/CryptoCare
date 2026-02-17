@@ -55,7 +55,7 @@ function RequestList({ idReq, value, description, completedTimestamp, recipient 
                     <div className="flex-col">
                       <div className="flex text-sm font-thin mb-2">
                         Recipient :{" "}
-                        <a href={"https://goerli-optimism.etherscan.io/address/" + recipient} target="_blank" rel="noopener noreferrer" className="text-base indent-3 hover:text-blue-600 hover:underline">
+                        <a href={"https://sepolia-optimism.etherscan.io/address/" + recipient} target="_blank" rel="noopener noreferrer" className="text-base indent-3 hover:text-blue-600 hover:underline">
                           {" "}
                           {shortenAddress(recipient)}
                         </a>

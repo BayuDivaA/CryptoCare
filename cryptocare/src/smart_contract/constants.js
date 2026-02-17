@@ -11,7 +11,9 @@ import { Contract } from "@ethersproject/contracts";
 // tenth : 0xd6058Df35e44110bC9f9e9275244690f2568937C
 
 // CryptoCare SmartContract
-export const contractAddress = "0xd6058Df35e44110bC9f9e9275244690f2568937C";
+export const contractAddress =
+  import.meta.env.VITE_FACTORY_CONTRACT_ADDRESS ||
+  "0xd6058Df35e44110bC9f9e9275244690f2568937C";
 export const contractABI = compileFactory.abi;
 export const contractBytecode = compileFactory.bytecode;
 

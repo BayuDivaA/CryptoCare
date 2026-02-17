@@ -2,15 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
 
-import { DAppProvider, OptimismGoerli, MetamaskConnector, CoinbaseWalletConnector } from "@usedapp/core";
+import { DAppProvider, MetamaskConnector, CoinbaseWalletConnector } from "@usedapp/core";
+import {
+  OPTIMISM_SEPOLIA_CHAIN_ID,
+  OPTIMISM_SEPOLIA_RPC_URL,
+} from "./smart_contract/network";
 
 import App from "./App";
 import "./index.css";
 
 const config = {
-  readOnlyChainId: OptimismGoerli.chainId,
+  readOnlyChainId: OPTIMISM_SEPOLIA_CHAIN_ID,
   readOnlyUrls: {
-    [OptimismGoerli.chainId]: "https://optimism-goerli.infura.io/v3/3d1947cbec5a45488fd1d5d0162fae38",
+    [OPTIMISM_SEPOLIA_CHAIN_ID]: OPTIMISM_SEPOLIA_RPC_URL,
   },
   connectors: {
     metamask: new MetamaskConnector(),

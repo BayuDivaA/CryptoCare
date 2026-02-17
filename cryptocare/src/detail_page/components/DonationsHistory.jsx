@@ -21,7 +21,7 @@ export default function DonationsHistory({ contributors, donations, donateTime }
         {contributors?.map((address, i) => (
           <div key={i} className="flex flex-row justify-between">
             <div className="flex flex-col">
-              <a href={"https://goerli-optimism.etherscan.io/address/" + address} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
+              <a href={"https://sepolia-optimism.etherscan.io/address/" + address} target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-blue-300">
                 {address && shortenAddress(address)}
               </a>
               {/* {address && shortenAddress(address)} */}

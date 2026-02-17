@@ -25,7 +25,7 @@ export default function UserHistory() {
                     <tr className="bg-white border-b">
                       <td className="px-6 py-4">{transaction.transactionName}</td>
                       <td className="px-6 py-4">
-                        <a className="hover:text-blue-300" href={"https://goerli-optimism.etherscan.io/tx/" + transaction.transaction.hash}>
+                        <a className="hover:text-blue-300" href={"https://sepolia-optimism.etherscan.io/tx/" + transaction.transaction.hash}>
                           {shortenAddress2(transaction.transaction.hash)}
                         </a>
                       </td>
