@@ -13,7 +13,7 @@ import { Contract } from "@ethersproject/contracts";
 // CryptoCare SmartContract
 export const contractAddress =
   import.meta.env.VITE_FACTORY_CONTRACT_ADDRESS ||
-  "0xd6058Df35e44110bC9f9e9275244690f2568937C";
+  "0x88877F3eb901840441F46990b69E902A5A2661aC";
 export const contractABI = compileFactory.abi;
 export const contractBytecode = compileFactory.bytecode;
 

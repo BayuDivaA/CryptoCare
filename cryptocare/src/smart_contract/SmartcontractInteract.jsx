@@ -74,9 +74,7 @@ function useThirdwebRead(contract, method, params = [], enabled = true) {
           setValue(normalizeValue(result));
         }
       } catch (_err) {
-        if (mounted) {
-          setValue(undefined);
-        }
+        // Keep the last successful value to avoid UI flicker/empty state on transient RPC errors.
       }
     }
 
@@ -281,12 +279,18 @@ export function fetchAnotherDetail(data) {
 
 // CHECK ADDRESS VERIFIED
 export function checkAddress(acc) {
-  return useThirdwebRead(
+  const result = useThirdwebRead(
     factoryContract,
-    "function getAddress(address) view returns (bool)",
+    "function getAddress(address) view returns (bool,string)",
     [acc],
     Boolean(acc)
   );
+
+  if (Array.isArray(result)) {
+    return Boolean(result[0]);
+  }
+
+  return Boolean(result);
 }
 export function checkIfAdmin(acc) {
   return useThirdwebRead(

@@ -5,7 +5,7 @@ import { MdVerified } from "react-icons/md";
 import { shortenAddress } from "../utils/shortenAddress";
 import { useNavigate } from "react-router-dom";
 import { checkAddress, getAddresses } from "../smart_contract/SmartcontractInteract";
-import { useCoingeckoPrice } from "@usedapp/coingecko";
+import useEthFiatPrices from "../utils/useEthFiatPrices";
 
 const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category, target, donatursCount, daftar, type }) => {
   const timeUnix = timestamp * 1000;
@@ -14,7 +14,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
   const month = date.toLocaleString("default", { month: "short" });
   const year = date.toLocaleString("default", { year: "numeric" });
   const dateFormat = month + " " + day + ", " + year;
-  const etherPrice = useCoingeckoPrice("ethereum", "usd");
+  const { usd: etherPrice, ready } = useEthFiatPrices();
 
   const userVerif = checkAddress(creator);
   const address = getAddresses();
@@ -56,7 +56,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
               <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
               {collectedFunds}
             </div>
-            <span className="flex text-xs font-thin text-[#7B7D8C] text-right"> $ {(etherPrice * collectedFunds).toFixed(2)}</span>{" "}
+            <span className="flex text-xs font-thin text-[#7B7D8C] text-right">{ready ? `$ ${(Number(collectedFunds || 0) * etherPrice).toFixed(2)}` : "Rate unavailable"}</span>{" "}
           </div>
           <div className="flex items-center text-lg font-bold text-[#302CED]">{donatursCount}</div>
         </div>

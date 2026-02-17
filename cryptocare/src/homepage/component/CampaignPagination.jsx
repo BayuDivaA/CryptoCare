@@ -35,13 +35,13 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
       .reverse()
       .filter(
         (campaign) =>
-          (campaign.status === 1 &&
+          ((campaign.status === 0 || campaign.status === 1) &&
             currentFilter === "all" &&
             dayjs().unix() <
               dayjs(campaign.timestamp * 1000)
                 .add(campaign.duration, "d")
                 .unix()) ||
-          (campaign.status === 1 &&
+          ((campaign.status === 0 || campaign.status === 1) &&
             campaign.category === currentFilter &&
             dayjs().unix() <
               dayjs(campaign.timestamp * 1000)

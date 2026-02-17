@@ -1,40 +1,55 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import React, { useState, useEffect } from "react";
 import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
 import { useContractFunction } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
 
-function RejectButton({ address }) {
+function RejectButton({ address, status: campaignStatus }) {
   const [isLoading, setIsLoading] = useState(false);
-  const myContract = new Contract(address, contractABICampaign);
+  const myContract = new Contract(address || "0x0000000000000000000000000000000000000000", contractABICampaign);
   const { state, send } = useContractFunction(myContract, "rejectCampaign", { transactionName: "Reject Campaign" });
-  const { status } = state;
+  const { status: txStatus } = state;
   const mining = React.useRef(null);
 
   useEffect(() => {
-    console.log(status);
-    if (status === "Mining") {
-      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, theme: "colored" });
-    } else if (status === "PendingSignature") {
+    console.log(txStatus);
+    if (txStatus === "PendingSignature") {
+      setIsLoading(true);
       mining.current = toast.loading("Waiting for Signature", { autoClose: false, theme: "colored" });
-    } else if (status === "Exception") {
+    } else if (txStatus === "Mining") {
+      setIsLoading(true);
+      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, theme: "colored" });
+    } else if (txStatus === "Exception") {
+      setIsLoading(false);
       toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
-    } else if (status === "Success") {
+    } else if (txStatus === "Success") {
+      setIsLoading(false);
       toast.update(mining.current, { render: "Campaign Rejected", type: "success", isLoading: false, autoClose: 5000, transition: Flip, delay: 2000 });
-    } else if (status === "Fail") {
+    } else if (txStatus === "Fail") {
+      setIsLoading(false);
       toast.update(mining.current, { render: "Error Reject Campaign.", type: "error", isLoading: false, autoClose: 5000, transition: Flip, delay: 2000 });
     } else {
+      setIsLoading(false);
     }
-  }, [state]);
+  }, [txStatus]);
 
   const rejectCampaignHandle = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!address) {
+      toast.error("Campaign address invalid.");
+      return;
+    }
     send();
-    setIsLoading(false);
   };
+
+  if (campaignStatus !== 0) {
+    return (
+      <button disabled className="bg-gray-300 text-gray-600 font-bold py-2 px-4 cursor-not-allowed">
+        Reject
+      </button>
+    );
+  }
 
   return (
     <>

@@ -1,32 +1,63 @@
 import React, { useState } from "react";
-import { create, CID } from "ipfs-http-client";
-import { Buffer } from "buffer";
 import { CiImport } from "react-icons/ci";
+import { toast, Flip } from "react-toastify";
 
-const projectId = "2J7fbfBVkAAJZK4WgZXuAiyZaVk";
-const projectSecret = "9711aec7170f5329f319681b5430602b";
-const authorization = "Basic " + btoa(projectId + ":" + projectSecret);
+const pinataJwt = import.meta.env.VITE_PINATA_JWT;
 
-const ipfs = create({
-  url: "https://ipfs.infura.io:5001/api/v0",
-  headers: {
-    authorization,
-  },
-});
+async function uploadToPinata(file, jwt) {
+  const payload = new FormData();
+  payload.append("file", file);
+
+  // Legacy Pinata pinning endpoint
+  try {
+    const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: payload,
+    });
+    const data = await response.json();
+
+    if (response.ok && data?.IpfsHash) {
+      return data.IpfsHash;
+    }
+  } catch (_err) {
+    // try fallback endpoint below
+  }
+
+  // New Pinata uploads endpoint
+  const fallbackPayload = new FormData();
+  fallbackPayload.append("file", file);
+  const fallbackResponse = await fetch("https://uploads.pinata.cloud/v3/files", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: fallbackPayload,
+  });
+
+  const fallbackData = await fallbackResponse.json();
+  if (fallbackResponse.ok && (fallbackData?.data?.cid || fallbackData?.cid)) {
+    return fallbackData?.data?.cid || fallbackData?.cid;
+  }
+
+  throw new Error(
+    fallbackData?.error?.reason ||
+      fallbackData?.error ||
+      "Request gagal ke Pinata (kemungkinan CORS/network/JWT)."
+  );
+}
 
 const Page3 = ({ formData, setFormData, preview, setPreview }) => {
   const [file, setFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const retrieveFile = (e) => {
-    setPreview(URL.createObjectURL(e.target.files[0]));
-    console.log(e.target.files);
-
     const data = e.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(data);
-    reader.onloadend = () => {
-      setFile(Buffer(reader.result));
-    };
+    if (!data) return;
+    setPreview(URL.createObjectURL(data));
+    setFile(data);
 
     setFormData({
       ...formData,
@@ -38,16 +69,41 @@ const Page3 = ({ formData, setFormData, preview, setPreview }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!pinataJwt) {
+      toast.error("Pinata config belum di-set. Isi VITE_PINATA_JWT di .env", {
+        autoClose: 6000,
+        transition: Flip,
+      });
+      return;
+    }
+    if (!file) return;
+
+    setIsUploading(true);
     try {
-      const created = await ipfs.add(file);
-      const url = `https://crypto-care.infura-ipfs.io/ipfs/${created.path}`;
-      console.log(url);
+      const loading = toast.loading("Uploading banner to IPFS...", {
+        autoClose: false,
+      });
+
+      const cid = await uploadToPinata(file, pinataJwt);
+      const url = `https://gateway.pinata.cloud/ipfs/${cid}`;
       setFormData({
         ...formData,
         bannerUrl: url,
       });
+      toast.update(loading, {
+        render: "Banner uploaded successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 4000,
+        transition: Flip,
+      });
     } catch (error) {
-      console.log(error.message);
+      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi/adblock dan JWT Pinata.`, {
+        autoClose: 7000,
+        transition: Flip,
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -90,10 +146,10 @@ const Page3 = ({ formData, setFormData, preview, setPreview }) => {
             />
             <button
               type="submit"
-              disabled={file === null}
+              disabled={file === null || isUploading}
               className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 disabled:cursor-not-allowed disabled:bg-red-200"
             >
-              Upload
+              {isUploading ? "Uploading..." : "Upload"}
             </button>
           </div>
         </form>

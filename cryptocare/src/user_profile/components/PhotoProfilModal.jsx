@@ -4,27 +4,54 @@ import { myContract } from "../../smart_contract/constants";
 import { useContractFunction, useEthers } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
-
-import { create, CID } from "ipfs-http-client";
-import { Buffer } from "buffer";
 import { CiImport } from "react-icons/ci";
+const pinataJwt = import.meta.env.VITE_PINATA_JWT;
 
-const projectId = "2J7fbfBVkAAJZK4WgZXuAiyZaVk";
-const projectSecret = "9711aec7170f5329f319681b5430602b";
-const authorization = "Basic " + btoa(projectId + ":" + projectSecret);
+async function uploadToPinata(file, jwt) {
+  const payload = new FormData();
+  payload.append("file", file);
 
-const ipfs = create({
-  url: "https://ipfs.infura.io:5001/api/v0",
-  headers: {
-    authorization,
-  },
-});
+  try {
+    const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: payload,
+    });
+    const data = await response.json();
+
+    if (response.ok && data?.IpfsHash) {
+      return data.IpfsHash;
+    }
+  } catch (_err) {
+    // Fallback to uploads endpoint
+  }
+
+  const fallbackPayload = new FormData();
+  fallbackPayload.append("file", file);
+  const fallbackResponse = await fetch("https://uploads.pinata.cloud/v3/files", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: fallbackPayload,
+  });
+
+  const fallbackData = await fallbackResponse.json();
+  if (fallbackResponse.ok && (fallbackData?.data?.cid || fallbackData?.cid)) {
+    return fallbackData?.data?.cid || fallbackData?.cid;
+  }
+
+  throw new Error(fallbackData?.error?.reason || fallbackData?.error || "Upload to Pinata failed.");
+}
 
 export default function PhotoProfilModal({ isOpen, cancel }) {
   const { account } = useEthers();
-  const [isLoading, setIsLoading] = useState();
-  const [showAlert, setShowAlert] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const [photoUrl, setPhotoUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const { state, send } = useContractFunction(myContract, "setPhoto", { transactionName: "Set Photo" });
   const { status } = state;
@@ -33,18 +60,25 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
   useEffect(() => {
     console.log(status);
     if (status === "Mining") {
+      setIsLoading(true);
       toast.update(mining.current, { render: "Mining Transaction", type: "loading", className: "rotateY animated" });
     } else if (status === "PendingSignature") {
+      setIsLoading(true);
       mining.current = toast.loading("Waiting for Signature", { autoClose: false });
     } else if (status === "Exception") {
+      setIsLoading(false);
       toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, className: "rotateY animated", delay: 2000 });
     } else if (status === "Success") {
+      setIsLoading(false);
       toast.update(mining.current, { render: "Success change photo.", type: "success", isLoading: false, autoClose: 5000, className: "rotateY animated", delay: 2000 });
+      cancel();
     } else if (status === "Fail") {
-      toast.error("Error change photo.", { delay: 2000 });
+      setIsLoading(false);
+      toast.error("Error change photo.", { autoClose: 5000, transition: Flip });
     } else {
+      setIsLoading(false);
     }
-  }, [state]);
+  }, [status, cancel]);
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
@@ -54,9 +88,6 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
       setShowAlert(false);
       setIsLoading(true);
       send(account, photoUrl);
-      setPhotoUrl("");
-      setIsLoading(false);
-      cancel();
     }
   };
 
@@ -64,15 +95,10 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
   const [preview, setPreview] = useState("");
 
   const retrieveFile = (e) => {
-    setPreview(URL.createObjectURL(e.target.files[0]));
-    console.log(e.target.files);
-
-    const data = e.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(data);
-    reader.onloadend = () => {
-      setFile(Buffer(reader.result));
-    };
+    const data = e.target.files?.[0];
+    if (!data) return;
+    setPreview(URL.createObjectURL(data));
+    setFile(data);
 
     setPhotoUrl("");
 
@@ -81,13 +107,38 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!pinataJwt) {
+      toast.error("Pinata config belum di-set. Isi VITE_PINATA_JWT di .env", {
+        autoClose: 6000,
+        transition: Flip,
+      });
+      return;
+    }
+
+    if (!file) return;
+
+    setIsUploading(true);
     try {
-      const created = await ipfs.add(file);
-      const url = `https://crypto-care.infura-ipfs.io/ipfs/${created.path}`;
-      console.log(url);
+      const loading = toast.loading("Uploading photo to IPFS...", {
+        autoClose: false,
+      });
+      const cid = await uploadToPinata(file, pinataJwt);
+      const url = `https://gateway.pinata.cloud/ipfs/${cid}`;
       setPhotoUrl(url);
+      toast.update(loading, {
+        render: "Photo uploaded successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 4000,
+        transition: Flip,
+      });
     } catch (error) {
-      console.log(error.message);
+      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi/JWT Pinata.`, {
+        autoClose: 7000,
+        transition: Flip,
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -107,7 +158,7 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
                   <div className="my-4">
                     {showAlert && (
                       <div className="mb-2 text-sm text-red-700 rounded-lg" role="alert">
-                        <span className="font-medium">Alert!</span> Make sure you have "Import" and "Upload" the photo.
+                        <span className="font-medium">Alert!</span> Make sure you have imported and uploaded the photo.
                       </div>
                     )}
                     <div className="w-full px-3 mb-6 md:mb-0">
@@ -142,10 +193,10 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
                           />
                           <button
                             type="submit"
-                            disabled={file === null}
+                            disabled={file === null || isUploading}
                             className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 disabled:cursor-not-allowed disabled:bg-red-200"
                           >
-                            Upload
+                            {isUploading ? "Uploading..." : "Upload"}
                           </button>
                         </div>
                       </form>
@@ -154,13 +205,12 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
 
                   {!isLoading ? (
                     <div className="flex justify-between">
-                      <button onClick={handleCreateRequest} type="button" className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-9000 ">
+                      <button onClick={handleCreateRequest} disabled={isUploading} type="button" className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300 hover:bg-blue-9000 ">
                         <div className="inline-flex">
-                          {/* <BiDonateHeart className="w-5 h-5 mr-2" /> */}
-                          Request
+                          Save Photo
                         </div>
                       </button>
-                      <button onClick={cancel} type="button" className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900 ">
+                      <button onClick={cancel} disabled={isLoading} type="button" className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-red-600 disabled:text-gray-300 hover:text-red-900 ">
                         Cancel
                       </button>
                     </div>

@@ -144,6 +144,47 @@ const faqData = [
       },
     ],
   },
+  {
+    category: "Platform Rules and Protection",
+    questions: [
+      {
+        id: 21,
+        question: "How are campaigns verified before going live?",
+        answer: [
+          "Each newly created campaign enters a waiting/validation status first.",
+          "Admin reviews campaign data before setting it to active.",
+          "Only approved campaigns can receive donations through the main flow.",
+        ],
+      },
+      {
+        id: 22,
+        question: "What should I check before donating to avoid scams?",
+        answer: [
+          "Check campaign status, creator address, story clarity, and update history.",
+          "Prefer campaigns with clear objectives and realistic fund usage.",
+          "Always confirm you are connected to OP Sepolia testnet for this environment.",
+        ],
+      },
+      {
+        id: 23,
+        question: "Can donors request a refund if a campaign is problematic?",
+        answer: [
+          "Yes, refund flow is available based on campaign smart contract rules.",
+          "If misuse is suspected, donors can report campaign activity.",
+          "Follow the report/refund actions on campaign detail page to trigger on-chain process.",
+        ],
+      },
+      {
+        id: 24,
+        question: "Which wallets and network are supported?",
+        answer: [
+          "Crypto Charity supports MetaMask, Coinbase Wallet, and WalletConnect.",
+          "Current deployment and testing are configured for Optimism Sepolia.",
+          "Please switch network if your wallet is connected to another chain.",
+        ],
+      },
+    ],
+  },
 ];
 
 export default faqData;

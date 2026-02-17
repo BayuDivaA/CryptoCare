@@ -8,8 +8,9 @@ import { toast, Flip } from "react-toastify";
 
 export default function EndCampaignModal({ isOpen, campaignAddress, closeHandle }) {
   const [isLoading, setIsLoading] = useState();
+  const hasValidAddress = Boolean(campaignAddress && campaignAddress.startsWith("0x") && campaignAddress.length === 42);
 
-  const myContract = new Contract(campaignAddress, contractABICampaign);
+  const myContract = new Contract(hasValidAddress ? campaignAddress : "0x0000000000000000000000000000000000000000", contractABICampaign);
   const { state, send } = useContractFunction(myContract, "endCampaign", { transactionName: "End Campaign" });
   const { status } = state;
   const mining = React.useRef(null);
@@ -32,6 +33,10 @@ export default function EndCampaignModal({ isOpen, campaignAddress, closeHandle 
 
   const endCampaignHandle = async (e) => {
     e.preventDefault();
+    if (!hasValidAddress) {
+      toast.error("Campaign address is not ready.");
+      return;
+    }
     setIsLoading(true);
     send();
     setIsLoading(false);

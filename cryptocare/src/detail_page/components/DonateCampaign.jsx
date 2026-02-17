@@ -47,7 +47,6 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
 
   useEffect(() => {
     console.log(status);
-    toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
     if (status === "Mining") {
       toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip, autoClose: false });
     } else if (status === "PendingSignature") {

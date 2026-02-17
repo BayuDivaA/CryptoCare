@@ -1,38 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { getDetail, fetchCampaign, getUserDonateValue } from "../../smart_contract/SmartcontractInteract";
+import React, { useMemo } from "react";
+import { getDetail, fetchCampaign, getAddresses } from "../../smart_contract/SmartcontractInteract";
 import { useParams } from "react-router";
 import MyCampaignCard from "./MyCampaignCard";
 import loader_2 from "../../assets/loader_2.svg";
 
 export default function UserCampaign() {
   const { account_address } = useParams();
+  const addresses = getAddresses();
   const campaignData = getDetail();
-  const userDonateValue = getUserDonateValue(account_address);
-  const [isLoading, setIsLoading] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
-  const [currentItems, setCurrentItems] = useState([]);
+  const isLoading = !campaignData || !addresses;
 
-  useEffect(() => {
-    campaignData.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setCampaigns(campaignData);
-        setIsLoading(false);
-      }
-    });
-
-    if (campaigns.length !== 0) {
-      const parsedCampaigns = fetchCampaign(campaigns);
-
-      const current = parsedCampaigns.reverse().filter((campaign) => campaign.creator === account_address);
-
-      setCurrentItems(current);
-      setIsLoading(false);
-    }
-  }, [campaignData, campaigns, userDonateValue]);
+  const currentItems = useMemo(() => {
+    if (!Array.isArray(campaignData) || !Array.isArray(addresses)) return [];
+    return fetchCampaign(campaignData)
+      .map((campaign) => ({
+        ...campaign,
+        campaignAddress: addresses?.[campaign.daftar],
+      }))
+      .filter((campaign) => campaign.campaignAddress)
+      .slice()
+      .reverse()
+      .filter((campaign) => campaign.creator === account_address);
+  }, [campaignData, addresses, account_address]);
 
   return (
     <>

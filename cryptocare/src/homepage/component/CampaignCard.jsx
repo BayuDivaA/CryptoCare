@@ -7,7 +7,7 @@ import { AiOutlineFolder } from "react-icons/ai";
 import { shortenAddress } from "../../utils/shortenAddress";
 import { useNavigate } from "react-router-dom";
 import { checkAddress, getAddresses } from "../../smart_contract/SmartcontractInteract";
-import { useCoingeckoPrice } from "@usedapp/coingecko";
+import useEthFiatPrices from "../../utils/useEthFiatPrices";
 
 const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category, target, donatursCount, daftar }) => {
   const timeUnix = timestamp * 1000;
@@ -16,7 +16,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
   const month = date.toLocaleString("default", { month: "short" });
   const year = date.toLocaleString("default", { year: "numeric" });
   const dateFormat = month + " " + day + ", " + year;
-  const etherPrice = useCoingeckoPrice("ethereum", "usd");
+  const { usd: etherPrice, ready } = useEthFiatPrices();
 
   const persentage = ((target - collectedFunds) / target) * 100;
 
@@ -63,7 +63,7 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
               <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
               <p className=" md:text-lg text-base font-bold text-[#302CED]">
                 {collectedFunds}
-                <span className="text-xs font-thin text-[#7B7D8C]"> ${(etherPrice * collectedFunds).toFixed(2)}</span>{" "}
+                <span className="text-xs font-thin text-[#7B7D8C]"> {ready ? `$ ${(Number(collectedFunds || 0) * etherPrice).toFixed(2)}` : "Rate unavailable"}</span>{" "}
               </p>
             </div>
             <div className="flex items-center md:text-lg text-base font-bold text-[#302CED]">{donatursCount}</div>

@@ -3,15 +3,19 @@ import { Dialog, Transition } from "@headlessui/react";
 import { SiEthereum } from "react-icons/si";
 import { contractABICampaign } from "../../smart_contract/constants";
 import { Contract } from "@ethersproject/contracts";
-import { useContractFunction, useEthers } from "@usedapp/core";
-import { parseUnits } from "@ethersproject/units";
+import { useContractFunction } from "@usedapp/core";
+import { formatEther, parseUnits } from "@ethersproject/units";
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { BigNumber } from "@ethersproject/bignumber";
 import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
+import { OPTIMISM_SEPOLIA_EXPLORER, OPTIMISM_SEPOLIA_RPC_URL } from "../../smart_contract/network";
 
 export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collectedFunds }) {
-  const [isLoading, setIsLoading] = useState();
-  const [showAlert, setShowAlert] = useState();
-  const [alertMinimal, setAlertMinimal] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMinimal, setAlertMinimal] = useState(false);
+  const [availableWei, setAvailableWei] = useState(BigNumber.from(0));
   const [formData, setFormData] = useState({
     description: "",
     value: "",
@@ -22,37 +26,102 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
   const myContract = new Contract(caddress, contractABICampaign);
   const { state, send } = useContractFunction(myContract, "createWithdrawl", { transactionName: "Create Request Withdrawl" });
   const { status, transaction } = state;
+  const availableEth = Number(formatEther(availableWei));
 
   const mining = React.useRef(null);
 
   useEffect(() => {
+    let mounted = true;
+    const provider = new JsonRpcProvider(OPTIMISM_SEPOLIA_RPC_URL);
+
+    async function loadAvailableBalance() {
+      if (!caddress) return;
+      try {
+        const balance = await provider.getBalance(caddress);
+        if (mounted) {
+          setAvailableWei(balance);
+        }
+      } catch (_err) {
+        // keep the previous balance if RPC fails temporarily
+      }
+    }
+
+    loadAvailableBalance();
+    const timer = setInterval(loadAvailableBalance, 10000);
+
+    return () => {
+      mounted = false;
+      clearInterval(timer);
+    };
+  }, [caddress, isOpen]);
+
+  useEffect(() => {
     console.log(status);
     if (status === "Mining") {
-      toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip });
+      setIsLoading(true);
+      toast.update(mining.current, { render: "Request transaction is being mined...", type: "loading", transition: Flip, autoClose: false });
     } else if (status === "PendingSignature") {
-      mining.current = toast.loading("Waiting for Signature", { autoClose: false });
+      setIsLoading(true);
+      mining.current = toast.loading("Waiting for wallet signature...", { autoClose: false });
     } else if (status === "Exception") {
-      toast.update(mining.current, { render: "Transaction signature rejected", type: "error", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+      setIsLoading(false);
+      toast.update(mining.current, { render: "Request canceled or rejected from wallet.", type: "error", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
     } else if (status === "Success") {
-      toast.update(mining.current, { render: "Success Request Withdrawl.", type: "success", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+      setIsLoading(false);
+      toast.update(mining.current, {
+        render: (
+          <div className="flex flex-col gap-2">
+            <span>Request withdrawl created successfully.</span>
+            <a href={`${OPTIMISM_SEPOLIA_EXPLORER}/tx/${transaction?.hash}`} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
+              View Transaction
+            </a>
+          </div>
+        ),
+        type: "success",
+        isLoading: false,
+        draggable: true,
+        autoClose: 7000,
+        transition: Flip,
+      });
+      setFormData({ description: "", value: "", recipient: "" });
+      cancel();
     } else if (status === "Fail") {
-      toast.error("Error change name.", { type: "success", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
+      setIsLoading(false);
+      toast.update(mining.current, { render: "Failed request withdrawl. Please try again.", type: "error", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
     } else {
+      setIsLoading(false);
     }
-  }, [state]);
+  }, [status, cancel, transaction]);
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
     if (description === "" || value === "" || recipient === "") {
       setShowAlert(true);
-    } else if (value > collectedFunds) {
-      setAlertMinimal(true);
-    } else {
-      send(description, parseUnits(value, 18), recipient);
-      setShowAlert(false);
-      setAlertMinimal(false);
-      cancel();
+      return;
     }
+
+    let requestWei;
+    try {
+      requestWei = parseUnits(value, 18);
+    } catch (_err) {
+      toast.error("Invalid amount format.");
+      return;
+    }
+
+    if (requestWei.lte(0)) {
+      toast.error("Amount must be greater than 0.");
+      return;
+    }
+
+    if (requestWei.gt(availableWei)) {
+      setAlertMinimal(true);
+      return;
+    }
+
+    setIsLoading(true);
+    send(description, requestWei, recipient);
+    setShowAlert(false);
+    setAlertMinimal(false);
   };
 
   return (
@@ -90,10 +159,13 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
                     </div>
                     <div className="w-full px-3 mb-6 md:mb-0">
                       <label className="block text-base font-semi-bold mb-2">The amount of funds required</label>
+                      <div className="mb-2 text-xs text-blue-gray-700">
+                        Available donation balance: <span className="font-semibold">{availableEth.toFixed(6)} ETH</span>
+                      </div>
 
                       {alertMinimal && (
                         <div className="mb-2 text-sm text-red-700 rounded-lg italic" role="alert">
-                          The amount of your request exceeds the funds collected.
+                          Request exceeds available donation balance.
                         </div>
                       )}
                       <div className="flex mb-3">
@@ -111,7 +183,8 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
                           id="donate-value"
                           className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900  block flex-1 min-w-0 w-full text-base p-2.5 "
                           min="0.01"
-                          step="0.01"
+                          step="0.0001"
+                          max={availableEth > 0 ? availableEth : undefined}
                           placeholder="0,05"
                         />
                       </div>
@@ -136,20 +209,20 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
                   </div>
                   {!isLoading ? (
                     <div className="flex justify-between">
-                      <button onClick={handleCreateRequest} type="button" className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-9000 ">
+                      <button onClick={handleCreateRequest} type="button" disabled={isLoading} className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300 hover:bg-blue-9000 ">
                         <div className="inline-flex">
                           {/* <BiDonateHeart className="w-5 h-5 mr-2" /> */}
                           Request
                         </div>
                       </button>
-                      <button onClick={cancel} type="button" className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-red-600 hover:text-red-900 ">
+                      <button onClick={cancel} disabled={isLoading} type="button" className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-red-600 disabled:text-gray-300 hover:text-red-900 ">
                         Cancel
                       </button>
                     </div>
                   ) : (
                     <div className="mt-4 flex justify-center items-center">
                       <img src={loader} alt="loader" className="w-7 h-7 object-contain mr-2" />
-                      <p className="text-base text-blue-gray-900">Waiting for Signature ...</p>
+                      <p className="text-base text-blue-gray-900">{status === "Mining" ? "Transaction is being mined..." : "Waiting for wallet signature..."}</p>
                     </div>
                   )}
                 </Dialog.Panel>

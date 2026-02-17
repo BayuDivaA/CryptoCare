@@ -13,6 +13,9 @@ export default function AdminPage() {
   const { account } = useEthers();
   const navigate = useNavigate();
   const isAdmin = checkIfAdmin(account);
+  const isSuperAdmin =
+    account?.toLowerCase() ===
+    "0x18A7361aCd7Da75e47Cd4A30Ef50693DE1605109".toLowerCase();
   const [isActive, setIsActive] = useState("verification");
   const [showWallet, setShowWallet] = useState(false);
 
@@ -35,8 +38,8 @@ export default function AdminPage() {
 
   return (
     <>
-      {account !== "0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092" && !isAdmin ? (
-        <div className="fixed inset-0 z-1 h-screen gradient-bg-admin flex items-center justify-center flex-col">
+      {!isSuperAdmin && !isAdmin ? (
+        <div className="fixed inset-0 flex flex-col items-center justify-center h-screen z-1 gradient-bg-admin">
           <p className="mt-[20px] font-epilogue font-bold text-[20px] text-blue-gray-900 text-center">You Are Not Admin</p>
           <p className=" font-epilogue font-bold text-[20px] text-blue-gray-900 text-center mb-[20px]">Please change your wallet address.</p>
           <button
@@ -59,12 +62,26 @@ export default function AdminPage() {
           </button>
         </div>
       ) : (
-        <div className=" sm:-8 p-4 gradient-bg-admin  min-h-screen flex flex-row">
-          <div className="sm:flex hidden mr-10 relative">
+        <div className="flex flex-row min-h-screen p-4 sm:-8 gradient-bg-admin">
+          <div className="relative hidden mr-10 sm:flex">
             <Sidebar verif={handleVerif} admin={handleAdmin} campaignList={handleCampaign} isAdmin={isAdmin} />
           </div>
           <div className="flex-1 max-sm:w-full max-w-[1280px] mx-auto sm:pr-5">
             <Navbar />
+            <div className="sm:hidden flex flex-wrap gap-2 mb-4">
+              <button onClick={handleVerif} className={`px-3 py-2 rounded-lg text-sm font-medium ${isActive === "verification" ? "bg-[#302CED] text-white" : "bg-white text-[#302CED]"}`}>
+                Verification
+              </button>
+              <button onClick={handleCampaign} className={`px-3 py-2 rounded-lg text-sm font-medium ${isActive === "campaign" ? "bg-[#302CED] text-white" : "bg-white text-[#302CED]"}`}>
+                Campaign
+              </button>
+              <button
+                onClick={handleAdmin}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${(isActive === "admin" ? "bg-[#302CED] text-white" : "bg-white text-[#302CED]") + (isAdmin ? "" : " hidden")}`}
+              >
+                Admin
+              </button>
+            </div>
             {isActive === "verification" && <UserVerification />}
             {isActive === "admin" && <AddAdmin />}
             {isActive === "campaign" && <CampaignList />}

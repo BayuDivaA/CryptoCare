@@ -1,26 +1,15 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, Fragment, useMemo } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
-import { BiDownvote } from "react-icons/bi";
-import { RiSendPlaneFill } from "react-icons/ri";
 import { SiEthereum } from "react-icons/si";
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { formatEther } from "@ethersproject/units";
-import { RequestCountdownTimer } from "./TimerEnd";
-import { checkAddressVoted, checkIfVoter, voterCount, getCampaignRequeset } from "../../smart_contract/SmartcontractInteract";
-import { useEthers, useContractFunction } from "@usedapp/core";
+import { getCampaignRequeset } from "../../smart_contract/SmartcontractInteract";
+import { useEthers } from "@usedapp/core";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { shortenAddress } from "../../utils/shortenAddress";
-import { Progress } from "@material-tailwind/react";
 import UrgentWithdrawlModal from "./UrgentWithdrawlModal";
-import { Contract } from "@ethersproject/contracts";
-import { contractABICampaign } from "../../smart_contract/constants";
-import loader_4 from "../../assets/loader_4.svg";
-import FinalizeWithdrawl from "./FinalizeWithdrawlConfirmation";
 
 function RequestList({ idReq, value, description, completedTimestamp, recipient }) {
-  const { account } = useEthers();
-
   return (
     <>
       <Disclosure as="div" className=" flex mt-4 ">
@@ -33,11 +22,13 @@ function RequestList({ idReq, value, description, completedTimestamp, recipient 
                     <div className="mr-2 flex-col">
                       <div className="flex items-center md:text-base text-sm font-medium text-left">
                         Withdrawl
-                        <SiEthereum className="mx-1 text-base" /> {value && formatEther(value)}
+                        <SiEthereum className="mx-1 text-base" /> {value ? formatEther(value.toString()) : "0"}
                       </div>
                     </div>
                     <div className="flex">
-                      <div className="flex items-center rounded-md bg-blue-600 px-2 text-xs text-white">{dayjs(completedTimestamp * 1000).format("DD MMMM YYYY")}</div>
+                      <div className="flex items-center rounded-md bg-blue-600 px-2 text-xs text-white">
+                        {completedTimestamp ? dayjs(Number(completedTimestamp.toString()) * 1000).format("DD MMMM YYYY") : "-"}
+                      </div>
                       <MdKeyboardArrowUp className={`${open ? "rotate-180 transform" : ""} ml-2 h-5 w-5 text-purple-500`} />
                     </div>
                   </div>
@@ -74,18 +65,14 @@ function RequestList({ idReq, value, description, completedTimestamp, recipient 
   );
 }
 
-export default function RequestDisclosure({ address, creatorAddress, collectedFunds, status }) {
+export default function UrgentWithdrawl({ address, creatorAddress, collectedFunds, status }) {
   const { account } = useEthers();
   const campaignRequest = getCampaignRequeset(address);
-  const voterCounter = voterCount(address);
-  const [requestWd, setRequestWd] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    if (campaignRequest || campaignRequest !== undefined) {
-      setRequestWd(campaignRequest?.[0]);
-    }
-  }, [campaignRequest, requestWd]);
+  const requestWd = useMemo(() => {
+    return Array.isArray(campaignRequest) ? campaignRequest : [];
+  }, [campaignRequest]);
 
   return (
     <>
@@ -101,7 +88,7 @@ export default function RequestDisclosure({ address, creatorAddress, collectedFu
           </div>
           {requestWd.length === 0 && <div className="flex justify-center italic my-3">No Request Yet</div>}
           {requestWd?.map((request, i) => (
-            <RequestList key={i} {...request} idReq={i} caddress={address} creator={creatorAddress} voterAll={voterCounter} />
+            <RequestList key={i} {...request} idReq={i} caddress={address} creator={creatorAddress} />
           ))}
         </div>
       </div>

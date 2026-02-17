@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { AiOutlineArrowRight, AiOutlineArrowLeft } from "react-icons/ai";
 import Page1a from "./components/pg1a.form";
 import Page1b from "./components/pg1b.form";
@@ -17,7 +17,8 @@ import { checkAddress, getUsername } from "../smart_contract/SmartcontractIntera
 import { toast, Flip } from "react-toastify";
 
 export default function Form() {
-  const { account } = useEthers();
+  const { account, library } = useEthers();
+  const prevStatus = useRef();
   const userName = getUsername(account);
   const verified = checkAddress(account); //Check verified address
   const [page, setPage] = useState(0);
@@ -38,10 +39,18 @@ export default function Form() {
   const { state, send } = useContractFunction(myContract, "createCampaigns", { transactionName: "CreateCampaign" });
   const { status, transaction, receipt } = state;
 
-  const MsgSuccess = ({ transaction }) => (
+  const MsgSuccess = ({ transaction, campaignAddress }) => (
     <div className="flex flex-col">
       <span>Success Create New Campaign</span>
       <div className="flex mt-4">
+        {campaignAddress && (
+          <button
+            onClick={() => navigate(`/campaign_details/${campaignAddress}`)}
+            className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center"
+          >
+            Open Campaign Detail
+          </button>
+        )}
         <a href={"https://sepolia-optimism.etherscan.io/tx/" + transaction?.hash} target="_blank" className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
           View Transaction
         </a>
@@ -51,18 +60,69 @@ export default function Form() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(receipt);
-    console.log(transaction);
-    if (status === "Exception") {
-      toast.error("Transaction signature rejected", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
-    } else if (status === "Success") {
-      toast.success(<MsgSuccess transaction={transaction} />, { closeButton: true, draggable: true, autoClose: false, isLoading: false, transition: Flip, theme: "colored" });
-      navigate("/");
-    } else if (status === "Fail") {
-      toast.error("Failed Create Campaign. Try Again!", { autoClose: 5000, transition: Flip, draggable: true, theme: "colored" });
-    } else {
+    if (prevStatus.current === status) return;
+    prevStatus.current = status;
+
+    async function handleStatus() {
+      if (status === "Exception") {
+        const errMsg = state?.errorMessage || "Transaction signature rejected";
+        toast.error(errMsg, {
+          autoClose: 7000,
+          transition: Flip,
+          draggable: true,
+          theme: "colored",
+        });
+        return;
+      }
+
+      if (status === "Fail") {
+        const errMsg =
+          state?.errorMessage ||
+          "Failed create campaign. Please check inputs and contract state.";
+        toast.error(errMsg, {
+          autoClose: 7000,
+          transition: Flip,
+          draggable: true,
+          theme: "colored",
+        });
+        return;
+      }
+
+      if (status === "Success") {
+        let latestCampaignAddress = null;
+        try {
+          if (library) {
+            const readContract = myContract.connect(library);
+            const campaigns = await readContract.getCampaigns();
+            latestCampaignAddress = campaigns?.[campaigns.length - 1];
+          }
+        } catch (_err) {}
+
+        toast.success(
+          <MsgSuccess
+            transaction={transaction}
+            campaignAddress={latestCampaignAddress}
+          />,
+          {
+            closeButton: true,
+            draggable: true,
+            autoClose: 6000,
+            isLoading: false,
+            transition: Flip,
+            theme: "colored",
+          }
+        );
+
+        if (latestCampaignAddress) {
+          navigate(`/campaign_details/${latestCampaignAddress}`);
+        } else {
+          navigate("/campaigns");
+        }
+      }
     }
-  }, [state]);
+
+    handleStatus();
+  }, [status, state, transaction, library, navigate]);
 
   const handleCreate = async (e) => {
     e.preventDefault();

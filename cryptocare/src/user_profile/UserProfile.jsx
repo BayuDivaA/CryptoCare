@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { getDetail, fetchCampaign, checkAddress, getUserDonateValue } from "../smart_contract/SmartcontractInteract";
 import { useParams } from "react-router";
-import { useEthers, useTransactions } from "@usedapp/core";
+import { useEthers } from "@usedapp/core";
 import { shortenAddress } from "../utils/shortenAddress";
 import { formatEther } from "@ethersproject/units";
 import { getUsername, getPhotoUrl } from "../smart_contract/SmartcontractInteract";
@@ -25,10 +25,10 @@ const Icon = ({ name, isActive, handleClick }) => (
   <button
     className={`${
       isActive === name ? "from-green-400 to-blue-600 text-white" : "hover:from-green-400 hover:to-blue-600 hover:text-white"
-    }  inline-flex items-center justify-center p-0.5 mb-2 mr-2  text-sm font-medium rounded-lg bg-gradient-to-br `}
+    }  inline-flex items-center justify-center p-0.5 mb-2 mr-2 text-xs sm:text-sm font-medium rounded-lg bg-gradient-to-br `}
     onClick={handleClick}
   >
-    <span className={` px-5 py-2.5 transition-all ease-in duration-75 rounded-md`}>{name}</span>
+    <span className={` px-3 sm:px-5 py-2 sm:py-2.5 transition-all ease-in duration-75 rounded-md`}>{name}</span>
   </button>
 );
 
@@ -42,11 +42,6 @@ export default function myCampaign() {
 
   const [isUsernameModal, setIsUsernameModal] = useState(false);
   const [isPhotoModal, setIsPhotoModal] = useState(false);
-  const [campaigns, setCampaigns] = useState([]);
-  const [userValue, setUserValue] = useState([]);
-  const [currentItems, setCurrentItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userDonated, setUserDonated] = useState(0);
   const userVerif = checkAddress(account_address);
   const [isActive, setIsActive] = useState("User Campaign");
 
@@ -57,52 +52,23 @@ export default function myCampaign() {
     setIsPhotoModal(true);
   }
 
-  useEffect(() => {
-    campaignData.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setCampaigns(campaignData);
-        setIsLoading(false);
-      }
-    });
+  const currentItems = useMemo(() => {
+    if (!Array.isArray(campaignData)) return [];
+    return fetchCampaign(campaignData)
+      .slice()
+      .reverse()
+      .filter((campaign) => campaign.creator === account_address);
+  }, [campaignData, account_address]);
 
-    userDonateValue.map((result) => {
-      if (!result || result?.value === "undefined") {
-        setIsLoading(true);
-        setCampaigns([]);
-      } else {
-        setIsLoading(true);
-        setUserValue(userDonateValue);
-        setIsLoading(false);
-      }
-    });
-
-    if (campaigns.length !== 0 && userValue.length !== 0) {
-      const parsedCampaigns = fetchCampaign(campaigns);
-
-      const current = parsedCampaigns.reverse().filter((campaign) => campaign.creator === account_address);
-
-      const ethers = userValue?.map((amount) => ({
-        total: formatEther(amount?.value?.[0]),
-      }));
-
-      const totalEther = ethers?.map((a) => {
-        return a.total;
-      });
-
-      setUserDonated(
-        totalEther.reduce((a, b) => {
-          return +a + +b;
-        })
-      );
-
-      setCurrentItems(current);
-      setIsLoading(false);
-    }
-  }, [campaignData, campaigns, userDonateValue]);
+  const userDonated = useMemo(() => {
+    if (!Array.isArray(userDonateValue) || userDonateValue.length === 0) return 0;
+    return userDonateValue.reduce((sum, amount) => {
+      const value = amount?.value;
+      const raw = Array.isArray(value) ? value[0] : value;
+      const ether = raw ? Number(formatEther(raw.toString())) : 0;
+      return sum + ether;
+    }, 0);
+  }, [userDonateValue]);
 
   return (
     <>
@@ -111,36 +77,36 @@ export default function myCampaign() {
 
       <div className="gradient-bg-profile min-h-screen w-full">
         <Navbar showList={false} />
-        <div className="flex items-center justify-center">
-          <div className="flex flex-row profile-glassmorphism shadow-xl rounded-md py-4 px-6 justify-between gap-7">
-            <div className="flex items-center">
+        <div className="flex items-center justify-center px-3">
+          <div className="flex w-full max-w-5xl flex-col sm:flex-row profile-glassmorphism shadow-xl rounded-md py-4 px-4 sm:px-6 justify-between gap-4 sm:gap-7">
+            <div className="flex items-center min-w-0">
               <div className="flex">
                 <img src={photoUrl ? photoUrl : logo} alt="" className="object-cover bg-gray-300 md:w-40 md:h-40 w-20 h-20 rounded-full" />
               </div>
-              <div className="ml-6 flex-col justify-between">
-                <p className="text-blue-gray-900 font-semibold md:text-xl text-base">{userName ? userName : shortenAddress(account_address)}</p>
-                <p className="text-blue-gray-600 font-semibold md:text-sm text-xs">{shortenAddress(account_address)}</p>
+              <div className="ml-4 sm:ml-6 flex-col justify-between min-w-0">
+                <p className="text-blue-gray-900 font-semibold md:text-xl text-base truncate">{userName ? userName : shortenAddress(account_address)}</p>
+                <p className="text-blue-gray-600 font-semibold md:text-sm text-xs truncate">{shortenAddress(account_address)}</p>
                 {userVerif ? (
-                  <span className="bg-purple-900 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full mt-2">Verified</span>
+                  <span className="inline-flex bg-purple-900 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full mt-2">Verified</span>
                 ) : (
-                  <span className="bg-gray-700 text-gray-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full mt-2">Unverified</span>
+                  <span className="inline-flex bg-gray-700 text-gray-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full mt-2">Unverified</span>
                 )}
 
-                <div className="flex flex-row gap-3 mt-5">
+                <div className="flex flex-row flex-wrap gap-3 mt-4 sm:mt-5">
                   <div className="flex flex-col items-center">
                     <span className="font-bold text-base">{currentItems.length}</span> Campaigns
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="font-bold text-base">{userDonated}</span> Ethers
+                    <span className="font-bold text-base">{userDonated.toFixed(4)}</span> Ethers
                   </div>
                 </div>
               </div>
             </div>
-            <div className="items-end">{account === account_address && <UserSettingDropdown address={account_address} verif={userVerif} handleUsername={handleModalUsername} handlePhoto={handleModalPhoto} />}</div>
+            <div className="items-end self-end sm:self-auto">{account === account_address && <UserSettingDropdown address={account_address} verif={userVerif} handleUsername={handleModalUsername} handlePhoto={handleModalPhoto} />}</div>
           </div>
         </div>
-        <div className="flex-1 flex flex-col justify-between items-center bg-white py-2 my-12">
-          <div className="flex flex-row justify-center items-center gap-3">
+        <div className="flex-1 flex flex-col justify-between items-center bg-white py-2 my-8 sm:my-12">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-3 px-2">
             <Icon
               name="User Campaign"
               isActive={isActive}

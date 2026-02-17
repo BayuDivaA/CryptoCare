@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import dayjs from "dayjs";
 import Loader from "../components/CampaignDetailLoader";
 import Navbar from "../homepage/component/Navbar";
@@ -16,48 +16,49 @@ export default function DetailPage() {
   const navigate = useNavigate();
   const { campaign_address } = useParams();
   const detail = getSpecificCampaignDetail(campaign_address);
-
-  const [campaigns, setCampaigns] = useState([]);
-  const [detail1, setDetail1] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [ended, setEnded] = useState(false);
-
-  useEffect(() => {
-    if (!detail || detail === "undefined") {
-      setIsLoading(true);
-    } else {
-      setCampaigns(detail);
-    }
-
-    if (campaigns.length !== 0) {
-      const parsedCampaigns = fetchCampaignDetail(campaigns);
-      setDetail1(parsedCampaigns);
-      setIsLoading(false);
-
-      const nowDay = dayjs();
-      const endDay = dayjs(detail1.timestamp * 1000).add(detail1.duration, "d");
-      setEnded(nowDay.unix() > endDay.unix());
-    }
-  }, [detail, campaigns, campaign_address]);
-
   const another = getAnotherDetail(campaign_address);
-  const [anotherDetails, setAnotherDetails] = useState();
 
-  useEffect(() => {
-    if (another === undefined) {
-      setIsLoading(true);
-    } else {
-      if (another) {
-        const parsed = fetchAnotherDetail(another);
-        setAnotherDetails(parsed);
-        setIsLoading(false);
-      }
+  const detailData = useMemo(() => {
+    if (!Array.isArray(detail) || detail.length < 12) {
+      return null;
     }
-  }, [another, campaign_address]);
+    return fetchCampaignDetail(detail);
+  }, [detail]);
+
+  const anotherDetails = useMemo(() => {
+    if (!Array.isArray(another) || another.length < 6) {
+      return null;
+    }
+    return fetchAnotherDetail(another);
+  }, [another]);
+
+  const ended = useMemo(() => {
+    if (!detailData) {
+      return false;
+    }
+
+    const nowDay = dayjs();
+    const endDay = dayjs(detailData.timestamp * 1000).add(detailData.duration, "d");
+    return nowDay.unix() > endDay.unix();
+  }, [detailData]);
+
+  const isLoading = !detailData || !anotherDetails;
+
+  if (isLoading) {
+    return (
+      <>
+        <Loader />
+        <div className="min-h-screen">
+          <div className="gradient-bg-form">
+            <Navbar showList={false} />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
-      {isLoading && <Loader />}
       <div className="min-h-screen">
         <div className="gradient-bg-form">
           <Navbar showList={false} />
@@ -69,13 +70,13 @@ export default function DetailPage() {
                     <FiChevronLeft className="mr-2" />
                     Back
                   </div>
-                  <HeaderDetail {...detail1} caddress={campaign_address} />
-                  <BannerDetail {...detail1} />
-                  <TabDetail {...detail1} caddress={campaign_address} />
+                  <HeaderDetail {...detailData} caddress={campaign_address} />
+                  <BannerDetail {...detailData} />
+                  <TabDetail {...detailData} caddress={campaign_address} />
                 </div>
                 <div className="flex flex-col gap-2 md:w-2/6">
-                  <CampaignAmount {...detail1} caddress={campaign_address} />
-                  {!ended ? <DonateCampaign {...detail1} {...anotherDetails} caddress={campaign_address} /> : ""}
+                  <CampaignAmount {...detailData} caddress={campaign_address} />
+                  {!ended ? <DonateCampaign {...detailData} {...anotherDetails} caddress={campaign_address} /> : ""}
                   <DonationsHistory {...anotherDetails} caddress={campaign_address} />
                 </div>
               </div>
@@ -85,5 +86,4 @@ export default function DetailPage() {
       </div>
     </>
   );
-  // <div className="flex bg-blue-200">{isLoading ? <Loader /> : <div className="">campaign address {detail1.story}</div>}</div>;
 }

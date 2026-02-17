@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 contract CryptoCareFactory {
-    address constant superAdmin = 0xf872Dc10b653f2c5f40aCb9Bc38E725EFafeD092;
+    address constant superAdmin = 0x18A7361aCd7Da75e47Cd4A30Ef50693DE1605109;
 
     mapping(address => bool) public admin;
     mapping(address => bool) public verifiedAddress;
@@ -11,6 +11,10 @@ contract CryptoCareFactory {
 
     uint public campaignCount;
     Campaign[] public deployedCampaign;
+
+    constructor() {
+        admin[superAdmin] = true;
+    }
 
     function getAddress(address _user) public view returns (bool, string memory) {
         return (verifiedAddress[_user], userName[_user]);
@@ -26,7 +30,7 @@ contract CryptoCareFactory {
         _;
     }
     modifier onlyAdmin() {
-        require(admin[msg.sender] == true);
+        require(admin[msg.sender] == true || msg.sender == superAdmin, "Only admin");
         _;
     }
     

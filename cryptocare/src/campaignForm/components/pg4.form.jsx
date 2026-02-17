@@ -1,10 +1,12 @@
 import React from "react";
 import { SiEthereum } from "react-icons/si";
-import { useCoingeckoPrice } from "@usedapp/coingecko";
+import useEthFiatPrices from "../../utils/useEthFiatPrices";
 
 const Page4 = ({ formData, setFormData }) => {
-  const etherPriceUsd = useCoingeckoPrice("ethereum", "usd");
-  const etherPriceIDR = useCoingeckoPrice("ethereum", "idr");
+  const { usd: etherPriceUsd, idr: etherPriceIDR, ready } = useEthFiatPrices();
+  const targetEth = Number(formData.target || 0);
+  const targetUsd = targetEth * etherPriceUsd;
+  const targetIdr = targetEth * etherPriceIDR;
 
   const rupiah = (number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -51,11 +53,13 @@ const Page4 = ({ formData, setFormData }) => {
                 </div>
                 <div className="flex md:col-span-3 text-sm justify-between text-[#302CED] italic w-full items-center p-2.5">
                   <h1>$</h1>
-                  <h1>{(etherPriceUsd * formData.target).toFixed(3)}</h1>
+                  <h1>
+                    {ready ? targetUsd.toFixed(3) : "Rate unavailable"}
+                  </h1>
                 </div>
                 <div className="flex md:col-span-3 text-sm justify-between text-[#302CED] italic w-full items-center p-2.5">
                   <h1>Rp</h1>
-                  <h1>{rupiah(etherPriceIDR * formData.target)}</h1>
+                  <h1>{ready ? rupiah(targetIdr) : "Rate unavailable"}</h1>
                 </div>
               </div>
             </div>
