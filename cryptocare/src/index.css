@@ -23,6 +23,18 @@ body {
     radial-gradient(at 100% 100%, hsla(225, 100%, 57%, 0.63) 0px, transparent 50%);
 }
 
+.gradient-bg-faq {
+  background-color: hsla(0, 0%, 100%, 1);
+  background-image: radial-gradient(at 8% 95%, hsla(198, 95%, 68%, 0.92) 0px, transparent 52%), radial-gradient(at 92% 100%, hsla(246, 100%, 70%, 0.58) 0px, transparent 50%),
+    radial-gradient(at 100% 10%, hsla(156, 86%, 64%, 0.5) 0px, transparent 42%);
+}
+
+.gradient-bg-contact {
+  background-color: hsla(0, 0%, 100%, 1);
+  background-image: radial-gradient(at 5% 100%, hsla(190, 92%, 66%, 0.9) 0px, transparent 50%), radial-gradient(at 88% 95%, hsla(214, 100%, 64%, 0.62) 0px, transparent 52%),
+    radial-gradient(at 100% 0%, hsla(42, 100%, 76%, 0.5) 0px, transparent 45%);
+}
+
 .gradient-bg-form {
   background-color: hsla(0, 0%, 100%, 1);
   background-image: radial-gradient(at 89% 0%, hsla(240, 100%, 70%, 0.32) 0px, transparent 50%), radial-gradient(at 58% 0%, hsla(343, 100%, 45%, 0.5) 0px, transparent 50%);

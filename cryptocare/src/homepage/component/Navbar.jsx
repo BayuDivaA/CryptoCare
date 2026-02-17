@@ -99,7 +99,7 @@ const Navbar = ({ showList }) => {
     <nav className="flex p-3 md:p-4 mx-0 md:mx-4">
       <div className="flex justify-center w-full">
         <div className="flex items-center flex-1 cursor-pointer" onClick={reloadPage}>
-          <img src={logo} alt="logo" className="w-8 h-8 md:w-10 md:h-10 mr-2 md:mr-4 max-w-14 object-contain" />
+          <img src={logo} alt="logo" className="w-9 h-9 md:w-11 md:h-11 mr-2 md:mr-4 max-w-14 object-contain" />
           <div className="flex flex-col md:flex-row md:items-center min-w-0">
             <h1 className="text-base md:text-2xl font-semibold truncate">Crypto Charity</h1>
             <div className="inline-flex items-center justify-start px-2 py-0.5 mt-0.5 md:mt-0 md:ml-2 bg-red-700 rounded-md w-fit">
