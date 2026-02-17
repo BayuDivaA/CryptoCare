@@ -55,7 +55,7 @@ function toNum(value) {
 
 function minVotesForFinalize(voterTotal) {
   if (!voterTotal || voterTotal <= 0) return Number.POSITIVE_INFINITY;
-  return Math.floor(voterTotal * 0.6) + 1; // strictly more than 60%
+  return Math.ceil(voterTotal * 0.6); // minimum 60%
 }
 
 function isSameAddress(a, b) {
@@ -104,16 +104,24 @@ async function findBlockByTimestamp(provider, targetTimestamp) {
 }
 
 async function findFinalizeTxHash({ provider, campaignAddress, requestId, completedTimestamp }) {
-  if (!provider || !campaignAddress || !completedTimestamp) return "";
+  if (!provider || !campaignAddress) return "";
 
   const campaignLower = String(campaignAddress).toLowerCase();
   const targetRequestId = BigNumber.from(requestId);
-  const pivot = await findBlockByTimestamp(provider, completedTimestamp);
-  if (pivot === null || pivot === undefined) return "";
-
   const latest = await provider.getBlockNumber();
-  const fromBlock = Math.max(0, pivot - 450);
-  const toBlock = Math.min(latest, pivot + 450);
+  let fromBlock;
+  let toBlock;
+
+  if (completedTimestamp) {
+    const pivot = await findBlockByTimestamp(provider, completedTimestamp);
+    if (pivot === null || pivot === undefined) return "";
+    fromBlock = Math.max(0, pivot - 450);
+    toBlock = Math.min(latest, pivot + 450);
+  } else {
+    // Fallback for cases where completed timestamp is not indexed yet in UI.
+    fromBlock = Math.max(0, latest - 1600);
+    toBlock = latest;
+  }
 
   for (let blockNumber = toBlock; blockNumber >= fromBlock; blockNumber -= 1) {
     const block = await provider.getBlockWithTransactions(blockNumber);
@@ -176,7 +184,6 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   const mining = React.useRef(null);
 
   useEffect(() => {
-    console.log(status);
     if (status === "Mining") {
       toast.update(mining.current, { render: "Mining Transaction", type: "loading", transition: Flip });
     } else if (status === "PendingSignature") {
@@ -221,13 +228,13 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
     let cancelled = false;
 
     async function backfillFinalizeTxHash() {
-      if (!isCompleted || localFinalizeTxHash || !completedAt || !caddress) return;
+      if (!isCompleted || localFinalizeTxHash || !caddress) return;
 
       const txHash = await findFinalizeTxHash({
         provider,
         campaignAddress: caddress,
         requestId: idReq,
-        completedTimestamp: completedAt,
+        completedTimestamp: finalizedTimestamp,
       });
 
       if (cancelled || !txHash) return;
@@ -244,7 +251,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
     return () => {
       cancelled = true;
     };
-  }, [isCompleted, localFinalizeTxHash, completedAt, caddress, idReq, provider]);
+  }, [isCompleted, localFinalizeTxHash, finalizedTimestamp, caddress, idReq, provider]);
 
   function openFinalizeModal() {
     setOpenFinalize(true);
@@ -325,7 +332,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                     <div className="flex pb-2">
                       {!isCompleted && approvalCount >= minApprovalsRequired && (
                         <div className=" text-xs font-thin text-left">
-                          Request <span className="font-bold">APPROVED</span> ({Number.isFinite(minApprovalsRequired) ? `>${60}% vote` : "vote threshold met"}), waiting creator for withdrawl!
+                          Request <span className="font-bold">APPROVED</span> ({Number.isFinite(minApprovalsRequired) ? `>=${60}% vote` : "vote threshold met"}), waiting creator for withdrawl!
                         </div>
                       )}
                       {ended && !isCompleted && approvalCount < minApprovalsRequired && (
@@ -344,7 +351,7 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                               </a>
                             </span>
                           )}
-                          {!recipientProofUrl && <span className="ml-2 italic text-blue-gray-600">Tx hash belum tersedia untuk request ini.</span>}
+                          {!recipientProofUrl && <span className="ml-2 italic text-blue-gray-600">Tx hash is not available for this request yet.</span>}
                         </div>
                       )}
                     </div>

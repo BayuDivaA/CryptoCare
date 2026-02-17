@@ -5,6 +5,7 @@ import loader_2 from "../../assets/loader_2.svg";
 import { useEthers } from "@usedapp/core";
 import WalletConnectProvider from "@walletconnect/web3-provider/dist/umd/index.min.js";
 import { toast } from "react-toastify";
+import { OPTIMISM_SEPOLIA_CHAIN_ID, OPTIMISM_SEPOLIA_EXPLORER, OPTIMISM_SEPOLIA_RPC_URL } from "../../smart_contract/network";
 
 export default function ConnectModal({ onClose, visible }) {
   const { activateBrowserWallet, account, switchNetwork, chainId, activate } = useEthers();
@@ -23,6 +24,32 @@ export default function ConnectModal({ onClose, visible }) {
       theme: "colored",
     });
 
+  async function syncOpSepoliaRpc() {
+    const ethereum = window?.ethereum;
+    if (!ethereum?.request) return;
+
+    try {
+      await ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: `0x${OPTIMISM_SEPOLIA_CHAIN_ID.toString(16)}`,
+            chainName: "Optimism Sepolia",
+            nativeCurrency: {
+              name: "Ether",
+              symbol: "ETH",
+              decimals: 18,
+            },
+            rpcUrls: [OPTIMISM_SEPOLIA_RPC_URL],
+            blockExplorerUrls: [OPTIMISM_SEPOLIA_EXPLORER],
+          },
+        ],
+      });
+    } catch (_err) {
+      // ignore if user rejects network update
+    }
+  }
+
   async function onConnect() {
     try {
       const provider = new WalletConnectProvider({
@@ -30,6 +57,7 @@ export default function ConnectModal({ onClose, visible }) {
       });
       await provider.enable();
       await activate(provider);
+      await syncOpSepoliaRpc();
       setIsLoading(true);
       onClose();
       setIsLoading(false);
@@ -48,6 +76,7 @@ export default function ConnectModal({ onClose, visible }) {
     } else {
       null;
     }
+    await syncOpSepoliaRpc();
     onClose();
     setIsLoading(false);
     notify();

@@ -6,8 +6,8 @@ import { useEthers } from "@usedapp/core";
 import UrgentDonateModal from "./UrgentDonateModal";
 import ConnectModal from "./WalletConnectModal";
 import { getAddresses } from "../../smart_contract/SmartcontractInteract";
-import { useCoingeckoPrice } from "@usedapp/coingecko";
 import { useNavigate } from "react-router-dom";
+import useEthFiatPrices from "../../utils/useEthFiatPrices";
 
 const defaultRemainingTime = {
   minutes: "00",
@@ -43,7 +43,7 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
   const address = getAddresses();
 
   const campaignAddress = address?.[daftar];
-  const etherPriceUsd = useCoingeckoPrice("ethereum", "usd");
+  const { usd: etherPriceUsd, ready } = useEthFiatPrices();
   const navigate = useNavigate();
 
   const handleDetails = () => {
@@ -77,7 +77,7 @@ const UrgentCampaignCard = ({ title, url, story, duration, timestamp, collectedF
                 <SiEthereum className=" text-sm font-bold text-[#302CED] mr-1" />
                 {collectedFunds}
               </div>
-              <span className="flex text-xs font-thin text-[#7B7D8C]"> $ {(etherPriceUsd * collectedFunds).toFixed(2)}</span>{" "}
+              <span className="flex text-xs font-thin text-[#7B7D8C]"> {ready ? `$ ${(Number(collectedFunds || 0) * etherPriceUsd).toFixed(2)}` : "Rate unavailable"}</span>{" "}
             </div>
             <CountdownTimer countdownTimestampsMs={timestamp} durationCampaign={duration} />
           </div>

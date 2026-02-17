@@ -11,13 +11,13 @@ import { OPTIMISM_SEPOLIA_EXPLORER } from "../../smart_contract/network";
 
 export default function FinalizeWithdrawl({ isOpen, campaignAddress, closeHandle, value, recipient, idReq, approvalCount = 0, voterTotal = 0, requiredVotes = 0, onSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { library } = useEthers();
-  const recipientBalanceBefore = React.useRef(null);
 
   const hasValidAddress = Boolean(campaignAddress && campaignAddress.startsWith("0x") && campaignAddress.length === 42);
   const myContract = new Contract(hasValidAddress ? campaignAddress : "0x0000000000000000000000000000000000000000", contractABICampaign);
   const { state, send } = useContractFunction(myContract, "finalizeWd", { transactionName: "Finalize Withdrawl" });
-  const { status, transaction } = state;
+  const { status, transaction, errorMessage, error } = state;
   const MsgSuccess = ({ transactions }) => (
     <div className="flex flex-col">
       <span>Withdrawal finalized on-chain.</span>
@@ -30,99 +30,98 @@ export default function FinalizeWithdrawl({ isOpen, campaignAddress, closeHandle
     </div>
   );
   const mining = React.useRef(null);
+  const submitTimeout = React.useRef(null);
+  const submittedTxHash = React.useRef("");
 
   useEffect(() => {
-    console.log(status);
+    return () => {
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      submittedTxHash.current = "";
+    }
+  }, [isOpen, idReq, campaignAddress]);
+
+  useEffect(() => {
     if (status === "Mining") {
       setIsLoading(true);
-      toast.update(mining.current, { render: "Finalize transaction is being mined...", type: "loading", transition: Flip, autoClose: false });
+      if (mining.current) {
+        toast.update(mining.current, { render: "Finalize transaction is being mined...", type: "loading", transition: Flip, autoClose: false, isLoading: true });
+      } else {
+        mining.current = toast.loading("Finalize transaction is being mined...", { autoClose: false, transition: Flip });
+      }
     } else if (status === "PendingSignature") {
       setIsLoading(true);
-      mining.current = toast.loading("Waiting for wallet signature...", { autoClose: false });
+      if (mining.current) {
+        toast.update(mining.current, { render: "Waiting for wallet signature...", type: "loading", transition: Flip, autoClose: false, isLoading: true });
+      } else {
+        mining.current = toast.loading("Waiting for wallet signature...", { autoClose: false, transition: Flip });
+      }
     } else if (status === "Exception") {
       setIsLoading(false);
-      toast.update(mining.current, { render: "Finalize canceled or rejected from wallet.", type: "error", isLoading: false, autoClose: 5000, transition: Flip });
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      const readableError = errorMessage || error?.message || "Finalize canceled/rejected or blocked by RPC rate-limit.";
+      if (mining.current) {
+        toast.update(mining.current, { render: readableError, type: "error", isLoading: false, autoClose: 7000, transition: Flip });
+      } else {
+        toast.error(readableError, { autoClose: 7000, transition: Flip });
+      }
     } else if (status === "Success") {
-      const verifyFinalizeResult = async () => {
-        try {
-          const readContract = new Contract(campaignAddress, contractABICampaign, library);
-          const finalizedRequest = await readContract.withdrawls(idReq);
-          const requestComplete = Boolean(finalizedRequest?.complete ?? finalizedRequest?.[3]);
-          const requestCompletedTimestamp = Number(finalizedRequest?.completedTimestamp ?? finalizedRequest?.[5] ?? 0);
-          let recipientBalanceIncreased = false;
+      setIsLoading(false);
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
 
-          if (library && recipient) {
-            try {
-              const afterBalance = await library.getBalance(recipient);
-              if (recipientBalanceBefore.current && afterBalance) {
-                recipientBalanceIncreased = afterBalance.gt(recipientBalanceBefore.current);
-              }
-            } catch (_balanceErr) {
-              recipientBalanceIncreased = false;
-            }
-          }
-          const transferConfirmed = requestComplete || recipientBalanceIncreased;
+      const resolvedTxHash = transaction?.hash || submittedTxHash.current || "";
+      const successContent = <MsgSuccess transactions={{ ...transaction, hash: resolvedTxHash }} />;
+      if (mining.current) {
+        toast.update(mining.current, {
+          render: successContent,
+          type: "success",
+          closeButton: true,
+          draggable: true,
+          autoClose: false,
+          isLoading: false,
+          transition: Flip,
+          theme: "colored",
+        });
+      } else {
+        toast.success(successContent, { autoClose: false, transition: Flip });
+      }
 
-          setIsLoading(false);
-          if (!transferConfirmed) {
-            toast.update(mining.current, {
-              render: (
-                <div className="flex flex-col gap-2">
-                  <span>Finalize mined, but transfer to recipient is not confirmed yet.</span>
-                  <a href={`${OPTIMISM_SEPOLIA_EXPLORER}/tx/${transaction?.hash}`} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center rounded-lg bg-red-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800">
-                    Check Transaction
-                  </a>
-                </div>
-              ),
-              type: "error",
-              closeButton: true,
-              draggable: true,
-              autoClose: false,
-              isLoading: false,
-              transition: Flip,
-              theme: "colored",
-            });
-            return;
-          }
-
-          toast.update(mining.current, {
-            render: <MsgSuccess transactions={transaction} />,
-            type: "success",
-            closeButton: true,
-            draggable: true,
-            autoClose: false,
-            isLoading: false,
-            transition: Flip,
-            theme: "colored",
-          });
-          if (onSuccess) {
-            onSuccess({
-              transaction,
-              completedTimestamp: requestCompletedTimestamp,
-            });
-          }
-          closeHandle();
-        } catch (_err) {
-          setIsLoading(false);
-          toast.update(mining.current, {
-            render: "Finalize transaction succeeded, but verification failed. Please check explorer.",
-            type: "warning",
-            closeButton: true,
-            draggable: true,
-            autoClose: 8000,
-            isLoading: false,
-            transition: Flip,
-          });
-        }
-      };
-      verifyFinalizeResult();
+      if (onSuccess) {
+        onSuccess({
+          transaction: { ...transaction, hash: resolvedTxHash },
+        });
+      }
+      closeHandle();
     } else if (status === "Fail") {
       setIsLoading(false);
-      toast.update(mining.current, { render: "Failed Withdrawl. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored", draggable: true });
-    } else {
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      if (mining.current) {
+        toast.update(mining.current, { render: "Failed Withdrawl. Try Again!", type: "error", isLoading: false, autoClose: 5000, transition: Flip, theme: "colored", draggable: true });
+      } else {
+        toast.error("Failed Withdrawl. Try Again!", { autoClose: 5000, transition: Flip, draggable: true });
+      }
+    } else if (!isSubmitting) {
       setIsLoading(false);
     }
-  }, [status, transaction, closeHandle, onSuccess, campaignAddress, idReq, library, recipient]);
+  }, [status, transaction, closeHandle, onSuccess, isSubmitting, errorMessage, error]);
 
   const withdrawlHandle = async (e) => {
     e.preventDefault();
@@ -135,16 +134,33 @@ export default function FinalizeWithdrawl({ isOpen, campaignAddress, closeHandle
       return;
     }
     if (!voterTotal || approvalCount < requiredVotes) {
-      toast.error(`Finalize requires >60% approval (${approvalCount}/${voterTotal} votes, need ${requiredVotes}).`);
+      toast.error(`Finalize requires at least 60% approval (${approvalCount}/${voterTotal} votes, need ${requiredVotes}).`);
       return;
     }
-    try {
-      recipientBalanceBefore.current = await library.getBalance(recipient);
-    } catch (_err) {
-      recipientBalanceBefore.current = null;
-    }
     setIsLoading(true);
-    send(idReq);
+    setIsSubmitting(true);
+    if (submitTimeout.current) {
+      clearTimeout(submitTimeout.current);
+    }
+    submitTimeout.current = setTimeout(() => {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      toast.error("Finalize timeout due to RPC rate-limit. Retry after a moment or switch to private RPC.");
+    }, 90000);
+    try {
+      const tx = await send(idReq);
+      if (tx?.hash) {
+        submittedTxHash.current = tx.hash;
+      }
+    } catch (_err) {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      toast.error("Unable to start finalize transaction.");
+    }
   };
 
   return (
@@ -167,7 +183,7 @@ export default function FinalizeWithdrawl({ isOpen, campaignAddress, closeHandle
                           Will send <span className="font-bold">{value ? formatEther(value.toString()) : "0"}</span> Ethers to <span className="font-bold">{recipient ? shortenAddress(recipient) : "-"}</span> ?
                         </p>
                         <p className="mt-1 text-xs text-blue-gray-700">
-                          Approval progress: {approvalCount}/{voterTotal} voters (need {requiredVotes} votes, strictly &gt;60%).
+                          Approval progress: {approvalCount}/{voterTotal} voters (need {requiredVotes} votes, minimum 60%).
                         </p>
                       </div>
                     ) : (

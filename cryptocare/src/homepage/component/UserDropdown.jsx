@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { GoChevronDown } from "react-icons/go";
@@ -57,7 +57,6 @@ function resolveChainId(primaryChainId, library) {
 export default function UserDropdown() {
   const { account, chainId, library, deactivate } = useEthers();
   const etherBalance = useEtherBalance(account);
-  const [providerBalance, setProviderBalance] = useState();
   const navigate = useNavigate();
   const photoUrl = getPhotoUrl(account);
   const userName = getUsername(account);
@@ -66,37 +65,7 @@ export default function UserDropdown() {
   const isOpSepolia = normalizedChainId === OPTIMISM_SEPOLIA_CHAIN_ID;
   const networkName = isOpSepolia ? "OP Sepolia" : normalizedChainId ? `Chain ${normalizedChainId}` : "Network N/A";
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadProviderBalance() {
-      if (!account || !library) {
-        if (mounted) setProviderBalance(undefined);
-        return;
-      }
-
-      try {
-        const balance = await library.getBalance(account);
-        if (mounted) {
-          setProviderBalance(balance);
-        }
-      } catch (_err) {
-        if (mounted) {
-          setProviderBalance(undefined);
-        }
-      }
-    }
-
-    loadProviderBalance();
-    const timer = setInterval(loadProviderBalance, 15000);
-
-    return () => {
-      mounted = false;
-      clearInterval(timer);
-    };
-  }, [account, library, normalizedChainId]);
-
-  const effectiveBalance = etherBalance ?? providerBalance;
+  const effectiveBalance = etherBalance;
   const formattedBalance = effectiveBalance
     ? Number(formatEther(effectiveBalance)).toLocaleString("en-US", {
         minimumFractionDigits: 4,

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useCoingeckoPrice } from "@usedapp/coingecko";
 
 function toSafeNumber(value) {
   const num = Number(value);
@@ -7,24 +6,26 @@ function toSafeNumber(value) {
 }
 
 export default function useEthFiatPrices() {
-  const hookUsd = useCoingeckoPrice("ethereum", "usd");
-  const hookIdr = useCoingeckoPrice("ethereum", "idr");
-  const [apiPrice, setApiPrice] = useState({ usd: 0, idr: 0 });
+  const [apiPrice, setApiPrice] = useState({ usd: 0, idr: 0, ready: false });
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
 
     async function fetchPrices() {
       try {
-        const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd,idr");
+        const response = await fetch("/api/eth-fiat", {
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
         const data = await response.json();
-        const usd = toSafeNumber(data?.ethereum?.usd);
-        const idr = toSafeNumber(data?.ethereum?.idr);
+        const usd = toSafeNumber(data?.data?.rates?.USD);
+        const idr = toSafeNumber(data?.data?.rates?.IDR);
         if (mounted && (usd > 0 || idr > 0)) {
-          setApiPrice({ usd, idr });
+          setApiPrice({ usd, idr, ready: true });
         }
       } catch (_err) {
-        // Keep hook values as fallback.
+        // keep latest successful values
       }
     }
 
@@ -33,17 +34,18 @@ export default function useEthFiatPrices() {
 
     return () => {
       mounted = false;
+      controller.abort();
       clearInterval(timer);
     };
   }, []);
 
   return useMemo(() => {
-    const usd = toSafeNumber(apiPrice.usd) || toSafeNumber(hookUsd);
-    const idr = toSafeNumber(apiPrice.idr) || toSafeNumber(hookIdr);
+    const usd = toSafeNumber(apiPrice.usd);
+    const idr = toSafeNumber(apiPrice.idr);
     return {
       usd,
       idr,
-      ready: usd > 0 || idr > 0,
+      ready: Boolean(apiPrice.ready && (usd > 0 || idr > 0)),
     };
-  }, [apiPrice.usd, apiPrice.idr, hookUsd, hookIdr]);
+  }, [apiPrice.usd, apiPrice.idr, apiPrice.ready]);
 }

@@ -24,6 +24,7 @@ const factoryContract = getContract({
   address: contractAddress,
   abi: contractABI,
 });
+const READ_POLL_INTERVAL_MS = 30000;
 
 function normalizeValue(value) {
   if (typeof value === "bigint") {
@@ -79,7 +80,7 @@ function useThirdwebRead(contract, method, params = [], enabled = true) {
     }
 
     load();
-    const timer = setInterval(load, 10000);
+    const timer = setInterval(load, READ_POLL_INTERVAL_MS);
 
     return () => {
       mounted = false;
@@ -137,7 +138,7 @@ function useThirdwebBatchRead(calls = []) {
     }
 
     loadAll();
-    const timer = setInterval(loadAll, 10000);
+    const timer = setInterval(loadAll, READ_POLL_INTERVAL_MS);
 
     return () => {
       mounted = false;

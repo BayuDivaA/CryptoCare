@@ -6,6 +6,8 @@ import AllCampaigns from "./all_campaigns/AllCampaigns";
 import AdminPage from "./admin_page/AdminPage";
 import AboutPage from "./about_page/AboutPage";
 import FAQPage from "./tutorial_page/FAQPage";
+import ContactPage from "./contact_page/ContactPage";
+import WalletRpcSync from "./components/WalletRpcSync";
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -16,6 +18,7 @@ function App() {
   return (
     <>
       <ToastContainer position="top-left" draggable />
+      <WalletRpcSync />
       <Routes>
         <Route path="/" exact element={<Home />} forceRefresh={true} />
         <Route path="/form" exact element={<Form />} />
@@ -25,6 +28,7 @@ function App() {
         <Route path="/admin" exact element={<AdminPage />} />
         <Route path="/about" exact element={<AboutPage />} />
         <Route path="/faq" exact element={<FAQPage />} />
+        <Route path="/contact" exact element={<ContactPage />} />
         {/* <Route component={Notfound} /> */}
       </Routes>
     </>

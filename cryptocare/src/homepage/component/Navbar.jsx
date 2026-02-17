@@ -64,13 +64,12 @@ const Navbar = ({ showList }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [isWrongNetwork, setIsWrongNetwork] = useState(false);
-  const [providerBalance, setProviderBalance] = useState();
   const etherBalance = useEtherBalance(account);
   const isAdmin = checkIfAdmin(account);
   const normalizedChainId = resolveChainId(chainId, library);
   const isOpSepolia = normalizedChainId === OPTIMISM_SEPOLIA_CHAIN_ID;
   const networkName = isOpSepolia ? "OP Sepolia" : normalizedChainId ? `Chain ${normalizedChainId}` : "Network N/A";
-  const effectiveBalance = etherBalance ?? providerBalance;
+  const effectiveBalance = etherBalance;
   const formattedBalance = effectiveBalance
     ? Number(formatEther(effectiveBalance)).toLocaleString("en-US", {
         minimumFractionDigits: 4,
@@ -89,36 +88,6 @@ const Navbar = ({ showList }) => {
       setIsWrongNetwork(false);
     }
   }, [account, normalizedChainId]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadProviderBalance() {
-      if (!account || !library) {
-        if (mounted) setProviderBalance(undefined);
-        return;
-      }
-
-      try {
-        const balance = await library.getBalance(account);
-        if (mounted) {
-          setProviderBalance(balance);
-        }
-      } catch (_err) {
-        if (mounted) {
-          setProviderBalance(undefined);
-        }
-      }
-    }
-
-    loadProviderBalance();
-    const timer = setInterval(loadProviderBalance, 15000);
-
-    return () => {
-      mounted = false;
-      clearInterval(timer);
-    };
-  }, [account, library, normalizedChainId]);
 
   const navigate = useNavigate();
   const reloadPage = () => {
@@ -158,7 +127,7 @@ const Navbar = ({ showList }) => {
                 <Link to="/faq">FAQ</Link>
               </li>
               <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-                <Link to="/faq">Contact Us</Link>
+                <Link to="/contact">Contact Us</Link>
               </li>
             </ul>
           </div>
@@ -214,6 +183,9 @@ const Navbar = ({ showList }) => {
                 </Link>
                 <Link to="/faq" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
                   FAQ
+                </Link>
+                <Link to="/contact" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
+                  Contact Us
                 </Link>
                 <a href="https://app.optimism.io/bridge" target={"_blank"} rel="noreferrer" className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
                   Bridge

@@ -20,7 +20,7 @@ const config = {
     metamask: new MetamaskConnector(),
     coinbase: new CoinbaseWalletConnector(),
   },
-  refresh: "everyBlock",
+  refresh: "never",
   notifications: {
     expirationPeriod: 0,
   },

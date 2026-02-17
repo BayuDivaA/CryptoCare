@@ -7,12 +7,17 @@ import { useContractFunction } from "@usedapp/core";
 import { formatEther, parseUnits } from "@ethersproject/units";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { BigNumber } from "@ethersproject/bignumber";
+import { isAddress } from "@ethersproject/address";
 import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
 import { OPTIMISM_SEPOLIA_EXPLORER, OPTIMISM_SEPOLIA_RPC_URL } from "../../smart_contract/network";
+import { useEthers } from "@usedapp/core";
+const BALANCE_POLL_INTERVAL_MS = 30000;
 
 export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collectedFunds }) {
+  const { account } = useEthers();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMinimal, setAlertMinimal] = useState(false);
   const [availableWei, setAvailableWei] = useState(BigNumber.from(0));
@@ -22,13 +27,23 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
     recipient: "",
   });
   const { description, value, recipient } = formData;
+  const hasValidAddress = Boolean(caddress && caddress.startsWith("0x") && caddress.length === 42);
 
-  const myContract = new Contract(caddress, contractABICampaign);
+  const myContract = new Contract(hasValidAddress ? caddress : "0x0000000000000000000000000000000000000000", contractABICampaign);
   const { state, send } = useContractFunction(myContract, "createWithdrawl", { transactionName: "Create Request Withdrawl" });
-  const { status, transaction } = state;
+  const { status, transaction, errorMessage, error } = state;
   const availableEth = Number(formatEther(availableWei));
 
   const mining = React.useRef(null);
+  const submitTimeout = React.useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -47,7 +62,7 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
     }
 
     loadAvailableBalance();
-    const timer = setInterval(loadAvailableBalance, 10000);
+    const timer = setInterval(loadAvailableBalance, BALANCE_POLL_INTERVAL_MS);
 
     return () => {
       mounted = false;
@@ -56,47 +71,99 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
   }, [caddress, isOpen]);
 
   useEffect(() => {
-    console.log(status);
     if (status === "Mining") {
       setIsLoading(true);
-      toast.update(mining.current, { render: "Request transaction is being mined...", type: "loading", transition: Flip, autoClose: false });
+      if (mining.current) {
+        toast.update(mining.current, { render: "Request transaction is being mined...", type: "loading", transition: Flip, autoClose: false, isLoading: true });
+      } else {
+        mining.current = toast.loading("Request transaction is being mined...", { autoClose: false, transition: Flip });
+      }
     } else if (status === "PendingSignature") {
       setIsLoading(true);
-      mining.current = toast.loading("Waiting for wallet signature...", { autoClose: false });
+      if (mining.current) {
+        toast.update(mining.current, { render: "Waiting for wallet signature...", type: "loading", transition: Flip, autoClose: false, isLoading: true });
+      } else {
+        mining.current = toast.loading("Waiting for wallet signature...", { autoClose: false, transition: Flip });
+      }
     } else if (status === "Exception") {
       setIsLoading(false);
-      toast.update(mining.current, { render: "Request canceled or rejected from wallet.", type: "error", isLoading: false, draggable: true, autoClose: 5000, transition: Flip });
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      const fallbackMessage = "Request failed before wallet confirmation. Check recipient address, wallet network, and campaign rules.";
+      const readableError = errorMessage || error?.message || fallbackMessage;
+      if (mining.current) {
+        toast.update(mining.current, { render: readableError, type: "error", isLoading: false, draggable: true, autoClose: 7000, transition: Flip });
+      } else {
+        toast.error(readableError, { autoClose: 7000, transition: Flip });
+      }
     } else if (status === "Success") {
       setIsLoading(false);
-      toast.update(mining.current, {
-        render: (
-          <div className="flex flex-col gap-2">
-            <span>Request withdrawl created successfully.</span>
-            <a href={`${OPTIMISM_SEPOLIA_EXPLORER}/tx/${transaction?.hash}`} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
-              View Transaction
-            </a>
-          </div>
-        ),
-        type: "success",
-        isLoading: false,
-        draggable: true,
-        autoClose: 7000,
-        transition: Flip,
-      });
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      const successContent = (
+        <div className="flex flex-col gap-2">
+          <span>Request withdrawl created successfully.</span>
+          <a href={`${OPTIMISM_SEPOLIA_EXPLORER}/tx/${transaction?.hash}`} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
+            View Transaction
+          </a>
+        </div>
+      );
+      if (mining.current) {
+        toast.update(mining.current, {
+          render: successContent,
+          type: "success",
+          isLoading: false,
+          draggable: true,
+          autoClose: 7000,
+          transition: Flip,
+        });
+      } else {
+        toast.success(successContent, { draggable: true, autoClose: 7000, transition: Flip });
+      }
       setFormData({ description: "", value: "", recipient: "" });
       cancel();
     } else if (status === "Fail") {
       setIsLoading(false);
-      toast.update(mining.current, { render: "Failed request withdrawl. Please try again.", type: "error", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
-    } else {
+      setIsSubmitting(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      if (mining.current) {
+        toast.update(mining.current, { render: "Failed request withdrawl. Please try again.", type: "error", isLoading: false, autoClose: 5000, draggable: true, transition: Flip });
+      } else {
+        toast.error("Failed request withdrawl. Please try again.", { autoClose: 5000, draggable: true, transition: Flip });
+      }
+    } else if (!isSubmitting) {
       setIsLoading(false);
     }
-  }, [status, cancel, transaction]);
+  }, [status, cancel, transaction, errorMessage, error, isSubmitting]);
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
-    if (description === "" || value === "" || recipient === "") {
+    if (!account) {
+      toast.error("Please connect your wallet first.");
+      return;
+    }
+    if (!hasValidAddress) {
+      toast.error("Campaign address is not ready.");
+      return;
+    }
+
+    const normalizedDescription = description.trim();
+    const normalizedRecipient = recipient.trim();
+    if (normalizedDescription === "" || value === "" || normalizedRecipient === "") {
       setShowAlert(true);
+      return;
+    }
+    if (!isAddress(normalizedRecipient)) {
+      toast.error("Recipient address is invalid.");
       return;
     }
 
@@ -119,9 +186,38 @@ export default function RequestWithdrawlModal({ isOpen, cancel, caddress, collec
     }
 
     setIsLoading(true);
-    send(description, requestWei, recipient);
-    setShowAlert(false);
-    setAlertMinimal(false);
+    setIsSubmitting(true);
+    if (submitTimeout.current) {
+      clearTimeout(submitTimeout.current);
+    }
+    submitTimeout.current = setTimeout(() => {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      toast.error("Wallet confirmation was not detected. Please retry and ensure wallet popup appears.");
+    }, 20000);
+    try {
+      const tx = await send(normalizedDescription, requestWei, normalizedRecipient);
+      if (!tx) {
+        setIsSubmitting(false);
+        setIsLoading(false);
+        if (submitTimeout.current) {
+          clearTimeout(submitTimeout.current);
+          submitTimeout.current = null;
+        }
+        toast.error("Transaction was not submitted. Please confirm in wallet and try again.");
+        return;
+      }
+      setShowAlert(false);
+      setAlertMinimal(false);
+    } catch (_err) {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      if (submitTimeout.current) {
+        clearTimeout(submitTimeout.current);
+        submitTimeout.current = null;
+      }
+      toast.error("Unable to submit request. Please try again.");
+    }
   };
 
   return (

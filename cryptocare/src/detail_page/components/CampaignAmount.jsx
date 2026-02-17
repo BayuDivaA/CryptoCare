@@ -4,6 +4,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { BigNumber } from "@ethersproject/bignumber";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { OPTIMISM_SEPOLIA_RPC_URL } from "../../smart_contract/network";
+const BALANCE_POLL_INTERVAL_MS = 30000;
 
 function toWeiFromEthString(value) {
   try {
@@ -41,7 +42,7 @@ export default function CampaignAmount({ collectedFunds, caddress }) {
     }
 
     readBalance();
-    const timer = setInterval(readBalance, 10000);
+    const timer = setInterval(readBalance, BALANCE_POLL_INTERVAL_MS);
 
     return () => {
       mounted = false;
