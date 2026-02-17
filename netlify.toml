@@ -1,0 +1,18 @@
+[build]
+  base = "cryptocare"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/eth-fiat"
+  to = "https://api.coinbase.com/v2/exchange-rates?currency=ETH"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
