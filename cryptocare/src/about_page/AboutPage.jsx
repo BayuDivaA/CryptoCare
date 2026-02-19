@@ -9,7 +9,7 @@ export default function AboutPage() {
   return (
     <>
       <div className="gradient-bg-welcome min-h-screen ">
-        <Navbar showList={false} />
+        <Navbar showList={true} />
         <Title />
         <About />
         <Team />

@@ -1,14 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
+import team1 from "../../images/team-1.png";
+import team2 from "../../images/team-2.png";
+import team3 from "../../images/team-3.png";
+import team4 from "../../images/team-4.png";
+import bg3d from "../../images/bg-3d.jpg";
+import fallbackProfile from "../../images/LogoOnly.png";
 
 function CardTeam({ image, name, text }) {
+  const [currentImage, setCurrentImage] = useState(image);
+  const [failedOnce, setFailedOnce] = useState(false);
+
   return (
-    <div className="rounded shadow-lg bg-white">
-      <div className="flex w-full justify-center bg-blue-50 ">
-        <img className="object-cover w-32 h-32" src={image} alt="Sunset in the mountains" />
+    <div className="overflow-hidden rounded-xl bg-white shadow-lg transition-transform duration-300 hover:-translate-y-1">
+      <div className="flex w-full justify-center bg-blue-50 py-4">
+        <img
+          className="h-28 w-28 rounded-full object-cover ring-4 ring-white"
+          src={currentImage}
+          alt={`Team member ${name}`}
+          loading="lazy"
+          decoding="async"
+          onError={() => {
+            if (failedOnce) return;
+            setFailedOnce(true);
+            setCurrentImage(fallbackProfile);
+          }}
+        />
       </div>
       <div className="px-6 py-4 text-center">
-        <div className="font-bold text-xl mb-2">{name}</div>
-        <p className="text-gray-700 text-base">{text}</p>
+        <div className="mb-2 text-lg font-bold">{name}</div>
+        <p className="text-sm text-gray-700">{text}</p>
       </div>
       <div className="flex px-6 pb-2 justify-center gap-2">
         <button className="bg-blue-400 p-2 font-semibold text-white inline-flex items-center space-x-2 rounded">
@@ -35,15 +55,15 @@ function CardTeam({ image, name, text }) {
 
 const Team = () => {
   return (
-    <div className="flex min-h-screen justify-center bg-[url('/images/bg-3d.jpg')] bg-cover bg-center items-center">
-      <div className="py-7">
-        <p className="text-center font-bold md:text-4xl text-xl mb-10 text-blue-gray-900">The Team</p>
+    <div className="flex min-h-screen items-center justify-center bg-cover bg-center px-4 py-10 sm:px-6" style={{ backgroundImage: `url(${bg3d})` }}>
+      <div className="w-full max-w-6xl py-7">
+        <p className="mb-10 text-center text-2xl font-bold text-blue-gray-900 sm:text-4xl">The Team</p>
         <div className="flex justify-center ">
-          <div className=" grid md:grid-cols-4 grid-flow-row gap-4">
-            <CardTeam image="../images/team-1.png" name="BAYU" text="FOUNDER" />
-            <CardTeam image="../images/team-2.png" name="BY YOU" text="Front-End Developer" />
-            <CardTeam image="../images/team-3.png" name="BY U" text="Back-End Developer" />
-            <CardTeam image="../images/team-4.png" name="BYU" text="Blockchain Developer" />
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <CardTeam image={team1} name="BAYU" text="FOUNDER" />
+            <CardTeam image={team2} name="BY YOU" text="Front-End Developer" />
+            <CardTeam image={team3} name="BY U" text="Back-End Developer" />
+            <CardTeam image={team4} name="BYU" text="Blockchain Developer" />
           </div>
         </div>
       </div>
