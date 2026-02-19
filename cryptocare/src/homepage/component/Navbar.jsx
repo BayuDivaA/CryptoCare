@@ -93,6 +93,17 @@ const Navbar = ({ showList }) => {
   const reloadPage = () => {
     navigate("/");
   };
+  const navLinks = [
+    { to: "/", label: "Home" },
+    { to: "/campaigns", label: "Campaigns" },
+    { to: "/about", label: "About" },
+  ];
+  const moreLinks = [
+    { to: "/faq", label: "FAQ", external: false },
+    { to: "/contact", label: "Contact", external: false },
+    { to: "https://app.optimism.io/bridge", label: "Bridge", external: true },
+  ];
+  const mobileLinks = [...navLinks, ...moreLinks];
 
   return (
     // Akan melakukan md selama ukuran layar besar dari 768px
@@ -110,24 +121,28 @@ const Navbar = ({ showList }) => {
         {showList && (
           <div className="flex justify-center md:flex-1">
             <ul className="flex-row items-center flex-initial hidden text-black list-none md:flex">
-              {/* <li className="mx-4 my-2 text-lg text-black transition ease-in-out cursor-pointer hover:scale-105">
-                {" "}
-                <Link to="/">Home</Link>{" "}
-              </li> */}
-
-              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-                <Link to="/about">About</Link>
-              </li>
-              <li className="transition ease-in-out hover:scale-105">
-                <a href="https://app.optimism.io/bridge" target={"_blank"} className="mx-4 my-2 text-lg text-black cursor-pointer">
-                  Bridge
-                </a>
-              </li>
-              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-                <Link to="/faq">FAQ</Link>
-              </li>
-              <li className={`mx-4 cursor-pointer text-black my-2 text-lg hover:scale-105 transition ease-in-out`}>
-                <Link to="/contact">Contact Us</Link>
+              {navLinks.map((item) => (
+                <li key={item.to} className="mx-3 my-2 cursor-pointer text-base text-black transition ease-in-out hover:scale-105 lg:text-lg">
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              ))}
+              <li className="relative mx-3 my-2 group">
+                <button type="button" className="text-base text-black cursor-pointer transition ease-in-out hover:scale-105 lg:text-lg">
+                  More
+                </button>
+                <div className="invisible absolute right-0 top-8 z-20 w-40 rounded-xl bg-white p-2 opacity-0 shadow-xl transition-all duration-150 group-hover:visible group-hover:opacity-100">
+                  {moreLinks.map((item) =>
+                    item.external ? (
+                      <a key={item.to} href={item.to} target="_blank" rel="noreferrer" className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50">
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link key={item.to} to={item.to} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50">
+                        {item.label}
+                      </Link>
+                    )
+                  )}
+                </div>
               </li>
             </ul>
           </div>
@@ -175,21 +190,17 @@ const Navbar = ({ showList }) => {
             </li>
             <li className="mt-3">
               <div className="rounded-2xl border border-blue-100 bg-white shadow-sm overflow-hidden">
-                <Link to="/" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 hover:bg-blue-50">
-                  Home
-                </Link>
-                <Link to="/about" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
-                  About
-                </Link>
-                <Link to="/faq" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
-                  FAQ
-                </Link>
-                <Link to="/contact" onClick={() => setToggleMenu(false)} className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
-                  Contact Us
-                </Link>
-                <a href="https://app.optimism.io/bridge" target={"_blank"} rel="noreferrer" className="block px-4 py-3 text-[15px] font-medium text-gray-800 border-t border-gray-100 hover:bg-blue-50">
-                  Bridge
-                </a>
+                {mobileLinks.map((item, index) =>
+                  item.external ? (
+                    <a key={item.to} href={item.to} target="_blank" rel="noreferrer" className={`block px-4 py-3 text-[15px] font-medium text-gray-800 hover:bg-blue-50 ${index === 0 ? "" : "border-t border-gray-100"}`}>
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link key={item.to} to={item.to} onClick={() => setToggleMenu(false)} className={`block px-4 py-3 text-[15px] font-medium text-gray-800 hover:bg-blue-50 ${index === 0 ? "" : "border-t border-gray-100"}`}>
+                      {item.label}
+                    </Link>
+                  )
+                )}
               </div>
             </li>
             {!account ? (
