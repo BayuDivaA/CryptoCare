@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SiEthereum } from "react-icons/si";
 import { MdVerified } from "react-icons/md";
 
@@ -15,6 +15,8 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
   const year = date.toLocaleString("default", { year: "numeric" });
   const dateFormat = month + " " + day + ", " + year;
   const { usd: etherPrice, ready } = useEthFiatPrices();
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isImageError, setIsImageError] = useState(false);
 
   const userVerif = checkAddress(creator);
   const address = getAddresses();
@@ -27,10 +29,26 @@ const CampaignCard = ({ title, url, timestamp, collectedFunds, creator, category
   };
 
   return (
-    // <div className="inline-grid w-full rounded-lg justify-between shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out cursor-pointer">
-    <div onClick={handleDetails} className="inline-flex flex-col w-full justify-between rounded-lg shadow-md bg-white hover:shadow-xl transition-shadow duration-300 ease-in-out cursor-pointer ">
+    <div onClick={handleDetails} className="flex h-full w-full cursor-pointer flex-col justify-between overflow-hidden rounded-lg bg-white shadow-md transition-shadow duration-300 ease-in-out hover:shadow-xl">
       <div className="flex flex-col">
-        <img src={url} alt="BANNER CAMPAIGN" className="w-full h-48 object-cover rounded-t-md" />
+        <div className="relative aspect-[16/9] w-full bg-blue-gray-100">
+          {isImageLoading && <div className="absolute inset-0 animate-pulse bg-blue-gray-100" />}
+          {!isImageError ? (
+            <img
+              src={url}
+              alt="BANNER CAMPAIGN"
+              loading="lazy"
+              onLoad={() => setIsImageLoading(false)}
+              onError={() => {
+                setIsImageLoading(false);
+                setIsImageError(true);
+              }}
+              className={`h-full w-full object-cover transition-opacity duration-300 ${isImageLoading ? "opacity-0" : "opacity-100"}`}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-blue-gray-400">Image unavailable</div>
+          )}
+        </div>
         <div className="px-2">
           <div className="flex justify-between">
             <div className="flex text-xs font-thin  text-[#7B7D8C] py-2">{dateFormat}</div>

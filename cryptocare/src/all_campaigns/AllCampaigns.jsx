@@ -103,9 +103,9 @@ export default function AllCampaigns() {
             <div className="flex justify-center italic text-semibold w-full mt-8">Campaign Not Found</div>
           ) : (
             <div className="flex justify-center">
-              <div className="grid md:grid-cols-4 gap-3">
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {currentItems.map((campaign, i) => (
-                  <div key={i} className="flex justify-center">
+                  <div key={i} className="flex w-full justify-center">
                     <CampaignCard {...campaign} />
                   </div>
                 ))}
