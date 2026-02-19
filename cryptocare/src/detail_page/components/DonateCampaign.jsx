@@ -85,8 +85,8 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
           </div>
         ) : (
           <div className="">
-            <div className="flex items-center">
-              <div className="flex ">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex w-full">
                 <span className="inline-flex items-center px-3 text-base text-white bg-gray-50 rounded-l-md ">
                   <SiEthereum className="text-blue-300" />
                 </span>
@@ -95,17 +95,17 @@ export default function DonateCampaign({ caddress, minimContribution, daftar }) 
                   value={donatedValue}
                   type="number"
                   id="donate-value"
-                  className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900  block flex-1 min-w-0 w-full text-base p-2.5 "
+                  className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-base p-2.5"
                   min="0.01"
                   step="0.01"
-                  placeholder="0,05"
+                  placeholder="0.05"
                 />
               </div>
               <button
                 onClick={openModal}
                 disabled={account ? false : true}
                 type="button"
-                className="flex disabled:bg-red-600 disabled:cursor-not-allowed disabled:text-white text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-300  font-medium rounded-full text-base px-5 py-2.5 text-center ml-2"
+                className="flex w-full justify-center disabled:bg-red-600 disabled:cursor-not-allowed disabled:text-white text-blue-600 hover:text-white bg-blue-100 hover:bg-blue-300 font-medium rounded-full text-base px-5 py-2.5 text-center sm:ml-2 sm:w-auto"
               >
                 Donate
               </button>

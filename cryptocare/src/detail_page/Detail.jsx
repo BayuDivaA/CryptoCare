@@ -62,10 +62,10 @@ export default function DetailPage() {
       <div className="min-h-screen">
         <div className="gradient-bg-form">
           <Navbar showList={false} />
-          <div className="md:mx-40">
-            <div className="flex items-center justify-center py-3">
-              <div className="flex flex-col w-5/6 gap-2 md:flex-row md:w-full">
-                <div className="flex flex-col px-6 py-4 bg-white rounded-md shadow-2xl md:w-4/6">
+          <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8 md:py-6">
+            <div className="flex items-center justify-center">
+              <div className="flex w-full flex-col gap-3 lg:flex-row">
+                <div className="flex w-full flex-col rounded-md bg-white px-4 py-4 shadow-2xl sm:px-6 lg:w-2/3">
                   <div className="flex items-center mb-2 text-black cursor-pointer hover:font-medium" onClick={() => navigate(-1)}>
                     <FiChevronLeft className="mr-2" />
                     Back
@@ -74,7 +74,7 @@ export default function DetailPage() {
                   <BannerDetail {...detailData} />
                   <TabDetail {...detailData} caddress={campaign_address} />
                 </div>
-                <div className="flex flex-col gap-2 md:w-2/6">
+                <div className="flex w-full flex-col gap-3 lg:w-1/3">
                   <CampaignAmount {...detailData} caddress={campaign_address} />
                   {!ended ? <DonateCampaign {...detailData} {...anotherDetails} caddress={campaign_address} /> : ""}
                   <DonationsHistory {...anotherDetails} caddress={campaign_address} />

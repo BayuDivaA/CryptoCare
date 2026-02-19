@@ -78,9 +78,9 @@ export default function PaginatedItems({ itemsPerPage, currentFilter }) {
         <div className="flex justify-center w-full my-8 italic font-semibold text-blue-gray-900">No live campaings yet.</div>
       ) : (
         <div className="flex justify-center">
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {currentItems.map((campaign, i) => (
-              <div key={i} className="flex justify-center">
+              <div key={i} className="flex w-full justify-center">
                 <CampaignCard {...campaign} />
               </div>
             ))}

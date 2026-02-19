@@ -32,13 +32,13 @@ export default function HeaderDetail({ timestamp, title, donatursCount, caddress
     <>
       <ReportConfirmation isOpen={isReport} closeHandle={() => setIsReport(false)} campaignAddress={caddress} alreadyReported={alreadyReported} />
       <RefundConfirmation isOpen={isRefund} closeHandle={() => setIsRefund(false)} campaignAddress={caddress} />
-      <div className="flex flex-row items-center justify-between">
-        <div className="">
-          <div className="flex text-xl font-bold">{title}</div>
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="w-full min-w-0">
+          <div className="flex break-words text-lg font-bold leading-tight sm:text-xl">{title}</div>
           <div className="flex text-sm text-blue-gray-300">{createDate}</div>
         </div>
-        <div className="flex items-center">
-          <div className="flex items-center mr-4">
+        <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start">
+          <div className="flex items-center sm:mr-4">
             <FiUsers className="mr-2" />
             {donatursCount}
           </div>

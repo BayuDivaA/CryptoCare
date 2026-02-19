@@ -12,7 +12,6 @@ import { RequestCountdownTimer } from "./TimerEnd";
 import { checkAddressVoted, checkIfVoter, voterCount, getCampaignRequeset } from "../../smart_contract/SmartcontractInteract";
 import { useEthers, useContractFunction } from "@usedapp/core";
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { shortenAddress } from "../../utils/shortenAddress";
 import { Progress } from "@material-tailwind/react";
 import RequestWithdrawlModal from "./RequestWithdrawlModal";
@@ -57,6 +56,12 @@ function minVotesForFinalize(voterTotal) {
   if (!voterTotal || voterTotal <= 0) return Number.POSITIVE_INFINITY;
   return Math.ceil(voterTotal * 0.6); // minimum 60%
 }
+
+function clampToPercent(value) {
+  return Math.min(100, Math.max(0, value));
+}
+
+const REQUESTS_PER_PAGE = 8;
 
 function isSameAddress(a, b) {
   if (!a || !b) return false;
@@ -168,9 +173,6 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   const finalizedTimestamp = localCompletedAt || completedAt;
   const recipientProofUrl = localFinalizeTxHash ? `${OPTIMISM_SEPOLIA_EXPLORER}/tx/${localFinalizeTxHash}` : null;
 
-  dayjs.extend(relativeTime);
-  const endFromNow = dayjs(endDay).fromNow();
-
   const myContract = new Contract(caddress, contractABICampaign);
   const { state, send } = useContractFunction(myContract, "approvalWithdrawl", { transactionName: "Approve Withdrawl" });
   const { status } = state;
@@ -199,11 +201,20 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
   }, [status]);
 
   const [openFinalize, setOpenFinalize] = useState(false);
-  const approvalProgress = voterTotal > 0 ? (approvalCount / voterTotal) * 100 : 0;
+  const approvalProgress = voterTotal > 0 ? clampToPercent((approvalCount / voterTotal) * 100) : 0;
+  const approvalRate = voterTotal > 0 ? Math.round((approvalCount / voterTotal) * 100) : 0;
   const txBusy = status === "PendingSignature" || status === "Mining";
   const isCreator = isSameAddress(account, creator);
   const canVote = Boolean(ifVoter) && !ended && !isCompleted && !checkVoted && !txBusy;
   const canFinalize = !isCompleted && approvalCount >= minApprovalsRequired && isCreator;
+  const readyToFinalize = !isCompleted && approvalCount >= minApprovalsRequired;
+  const requestIndexLabel = Number(idReq) + 1;
+  const statusPill = isCompleted ? "bg-emerald-100 text-emerald-700" : ended && !readyToFinalize ? "bg-red-100 text-red-700" : readyToFinalize ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700";
+  const statusLabel = isCompleted ? "Finalized" : ended && !readyToFinalize ? "Disapproved" : readyToFinalize ? "Ready" : "Voting";
+  const compactDescription = String(description || "").trim();
+  const briefDescription = compactDescription.length > 96 ? `${compactDescription.slice(0, 96)}...` : compactDescription;
+  const createdDateLabel = createdAt > 0 ? dayjs(createdAt * 1000).format("DD MMM YYYY") : "-";
+  const voteSummary = `${approvalCount}/${voterTotal} votes`;
 
   useEffect(() => {
     setLocalComplete(Boolean(complete));
@@ -286,39 +297,70 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
         requiredVotes={Number.isFinite(minApprovalsRequired) ? minApprovalsRequired : 0}
         onSuccess={handleFinalizeSuccess}
       />
-      <Disclosure as="div" className=" flex mt-4 ">
+      <Disclosure as="div" className="mt-3">
         {({ open }) => (
           <>
-            <div className="w-full flex items-center">
-              <div className="w-full">
-                <Disclosure.Button className={`flex flex-col w-full ${open ? "bg-blue-50 rounded-t-lg" : "rounded-lg shadow-xl"} px-6 py-3 text-purple-900 hover:bg-blue-50`}>
-                  <div className="flex w-full justify-between items-start">
-                    <div className="mr-2 flex-col">
-                      <div className="flex items-center md:text-base text-sm font-medium text-left">
-                        Request
-                        <SiEthereum className="mx-1 text-base" /> {value ? formatEther(value.toString()) : "0"}
-                      </div>
-                      {ended && <div className="flex text-xs font-thin pt-2 ">Ended {endFromNow}</div>}
-                      {!ended && (
-                        <div className="flex text-xs font-thin pt-2 ">
-                          Approved by {approvalCount}/{voterTotal} voters (need {Number.isFinite(minApprovalsRequired) ? minApprovalsRequired : 0} for finalize)
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex">
-                      {!ended && createdAt > 0 && !isCompleted && (
-                        <div className="flex items-center rounded-md bg-blue-600 px-2 text-xs text-white">
-                          <RequestCountdownTimer countdownTimestampsMs={createdAt} durationCampaign="1" />
-                        </div>
-                      )}
-                      {!isCompleted && approvalCount >= minApprovalsRequired && !isCreator && <div className="rounded-md bg-blue-600 px-2 py-1 text-xs text-white">Waiting</div>}
-                      {ended && !isCompleted && approvalCount < minApprovalsRequired && <div className="rounded-md bg-[#eb0b0b] px-2 py-1 text-xs text-white">Disapproved</div>}
-                      {isCompleted && approvalCount >= minApprovalsRequired && <div className="rounded-md bg-blue-600 px-2 py-1 text-xs text-white">Approved</div>}
-                      <MdKeyboardArrowUp className={`${open ? "rotate-180 transform" : ""} ml-2 h-5 w-5 text-purple-500`} />
-                    </div>
+            <div className={`w-full rounded-xl bg-white px-3 py-3 shadow-sm transition-shadow ${open ? "shadow-md" : ""}`}>
+              <Disclosure.Button className="flex w-full items-start justify-between gap-3 text-left text-slate-800">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 text-[11px] text-blue-gray-500">
+                    <span className="font-semibold text-blue-gray-700">Request #{requestIndexLabel}</span>
+                    <span>{createdDateLabel}</span>
                   </div>
-                  <div className="flex w-full pt-2">{!ended && !isCompleted && <Progress value={approvalProgress} color="purple" variant="filled" />}</div>
-                </Disclosure.Button>{" "}
+                  <div className="mt-1 flex items-center text-sm font-semibold sm:text-base">
+                    <SiEthereum className="mr-1 text-sm text-blue-700" />
+                    {value ? formatEther(value.toString()) : "0"} ETH
+                  </div>
+                  <div className="mt-1 text-xs text-blue-gray-500">
+                    {voteSummary} · need {Number.isFinite(minApprovalsRequired) ? minApprovalsRequired : 0} · {approvalRate}%
+                  </div>
+                  <p className="mt-1 text-xs text-blue-gray-500 break-words">{briefDescription || "-"}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className={`inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold ${statusPill}`}>{statusLabel}</div>
+                  <MdKeyboardArrowUp className={`${open ? "rotate-180 transform" : ""} h-5 w-5 text-blue-500`} />
+                </div>
+              </Disclosure.Button>
+
+              {!ended && !isCompleted && (
+                <div className="mt-2">
+                  <Progress value={approvalProgress} color="purple" variant="filled" />
+                </div>
+              )}
+
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {!ended && createdAt > 0 && !isCompleted && (
+                  <div className="inline-flex items-center rounded-md bg-blue-600 px-2 py-1 text-[11px] text-white">
+                    <RequestCountdownTimer countdownTimestampsMs={createdAt} durationCampaign="1" />
+                  </div>
+                )}
+                {!isCompleted && approvalCount >= minApprovalsRequired && !isCreator && <div className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-[11px] font-semibold text-blue-700">Waiting Creator</div>}
+                {!ended && !isCompleted && (
+                  <button
+                    onClick={voteHandle}
+                    disabled={!canVote}
+                    className={`inline-flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                      canVote ? "bg-blue-600 text-white hover:bg-blue-700" : "cursor-not-allowed bg-blue-gray-100 text-blue-gray-500"
+                    }`}
+                  >
+                    {txBusy ? <img src={loader_4} alt="loader" className="h-3.5 w-3.5 object-contain" /> : <HiCheckCircle className="h-3.5 w-3.5" />}
+                    {checkVoted ? "Voted" : "Vote"}
+                  </button>
+                )}
+                {canFinalize && (
+                  <button onClick={openFinalizeModal} className="inline-flex items-center justify-center gap-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-emerald-700">
+                    <HiOutlineCheckBadge className="h-3.5 w-3.5" />
+                    Finalize
+                  </button>
+                )}
+                {isCompleted && (
+                  <div className="inline-flex items-center justify-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                    <HiOutlineCheckBadge className="h-3.5 w-3.5" />
+                    Finalized
+                  </div>
+                )}
+              </div>
+
                 <Transition
                   as={Fragment}
                   enter="transition ease-out duration-300"
@@ -328,21 +370,21 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                   leaveFrom="transform opacity-100 scale-100"
                   leaveTo="transform opacity-0 scale-95"
                 >
-                  <Disclosure.Panel className={`px-4 py-2 ${open ? "shadow-xl" : ""} text-sm text-blue-900`}>
-                    <div className="flex pb-2">
+                  <Disclosure.Panel className="pt-2 text-sm text-blue-900 break-words">
+                    <div className="flex pb-1">
                       {!isCompleted && approvalCount >= minApprovalsRequired && (
-                        <div className=" text-xs font-thin text-left">
-                          Request <span className="font-bold">APPROVED</span> ({Number.isFinite(minApprovalsRequired) ? `>=${60}% vote` : "vote threshold met"}), waiting creator for withdrawl!
+                        <div className="text-xs text-left text-blue-gray-600">
+                          Request approved ({Number.isFinite(minApprovalsRequired) ? `>=${60}% votes` : "vote threshold met"}), waiting creator withdrawal.
                         </div>
                       )}
                       {ended && !isCompleted && approvalCount < minApprovalsRequired && (
-                        <div className=" text-xs font-thin text-left italic">
-                          Request was <span className="font-bold">DISAPPROVED</span>, only approved by {voterTotal ? ((approvalCount / voterTotal) * 100).toFixed(1) : 0}% of the {voterTotal} voters
+                        <div className="text-xs text-left italic text-blue-gray-600">
+                          Request disapproved, approved by {voterTotal ? ((approvalCount / voterTotal) * 100).toFixed(1) : 0}% of {voterTotal} voters.
                         </div>
                       )}
                       {isCompleted && approvalCount >= minApprovalsRequired && (
-                        <div className=" text-xs font-thin text-left">
-                          Funds has been received by <span className="font-bold">{shortenAddress(recipient)}</span> on {finalizedTimestamp ? dayjs(finalizedTimestamp * 1000).format("DD MMMM YYYY") : "-"}
+                        <div className="text-xs text-left text-blue-gray-600">
+                          Funds received by <span className="font-semibold">{shortenAddress(recipient)}</span> on {finalizedTimestamp ? dayjs(finalizedTimestamp * 1000).format("DD MMM YYYY") : "-"}
                           {recipientProofUrl && (
                             <span className="ml-2">
                               Tx:{" "}
@@ -356,44 +398,12 @@ function RequestList({ idReq, value, description, createTimestamp, caddress, app
                       )}
                     </div>
 
-                    <div className="flex-col">
-                      <div className="flex text-sm font-thin">Description :</div>
-                      <div className="flex text-base text-justify">{description}</div>
+                    <div className="mt-2">
+                      <div className="flex text-xs font-semibold uppercase tracking-wide text-blue-gray-500">Description</div>
+                      <div className="mt-1 text-sm leading-relaxed text-blue-gray-800">{compactDescription || "-"}</div>
                     </div>
                   </Disclosure.Panel>
                 </Transition>
-              </div>
-              <div className="items-center ml-2">
-                {!ended && !isCompleted && (
-                  <button
-                    onClick={voteHandle}
-                    disabled={!canVote}
-                    className={`mb-2 flex min-w-[108px] items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
-                      canVote ? "bg-blue-600 text-white shadow-md hover:bg-blue-700" : "cursor-not-allowed bg-blue-gray-100 text-blue-gray-500"
-                    }`}
-                  >
-                    {txBusy ? <img src={loader_4} alt="loader" className="h-4 w-4 object-contain" /> : <HiCheckCircle className="h-4 w-4" />}
-                    {checkVoted ? "Voted" : "Vote"}
-                  </button>
-                )}
-
-                {canFinalize && (
-                  <button
-                    onClick={openFinalizeModal}
-                    className="flex min-w-[116px] items-center justify-center gap-2 rounded-full border border-[#0f766e] bg-[#0f766e] px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-[#115e59]"
-                  >
-                    <HiOutlineCheckBadge className="h-4 w-4" />
-                    Finalize
-                  </button>
-                )}
-
-                {isCompleted && (
-                  <div className="flex min-w-[116px] items-center justify-center gap-2 rounded-full border border-[#115e59] bg-[#ccfbf1] px-4 py-2 text-xs font-semibold text-[#115e59]">
-                    <HiOutlineCheckBadge className="h-4 w-4" />
-                    Finalized
-                  </div>
-                )}
-              </div>
             </div>
           </>
         )}
@@ -407,6 +417,7 @@ export default function RequestDisclosure({ address, creatorAddress, collectedFu
   const campaignRequest = getCampaignRequeset(address);
   const voterCounter = voterCount(address);
   const [isOpen, setIsOpen] = useState(false);
+  const [sectionPage, setSectionPage] = useState({ ongoing: 0, approved: 0, disapproved: 0 });
   const voterTotal = toNum(voterCounter);
   const minApprovalsRequired = minVotesForFinalize(voterTotal);
   const nowUnix = dayjs().unix();
@@ -439,33 +450,99 @@ export default function RequestDisclosure({ address, creatorAddress, collectedFu
     return { ongoing, approved, disapproved };
   }, [requestWd, minApprovalsRequired, nowUnix]);
 
+  useEffect(() => {
+    setSectionPage((prev) => {
+      const next = { ...prev };
+      ["ongoing", "approved", "disapproved"].forEach((key) => {
+        const total = groupedRequest[key]?.length || 0;
+        const maxIndex = Math.max(0, Math.ceil(total / REQUESTS_PER_PAGE) - 1);
+        next[key] = Math.min(prev[key], maxIndex);
+      });
+      return next;
+    });
+  }, [groupedRequest]);
+
+  function changePage(section, step, maxPageIndex) {
+    setSectionPage((prev) => ({
+      ...prev,
+      [section]: Math.min(maxPageIndex, Math.max(0, prev[section] + step)),
+    }));
+  }
+
+  function renderSection(sectionKey, title, titleClass) {
+    const sectionItems = groupedRequest[sectionKey] || [];
+    if (sectionItems.length === 0) return null;
+
+    const maxPage = Math.max(1, Math.ceil(sectionItems.length / REQUESTS_PER_PAGE));
+    const page = Math.min(sectionPage[sectionKey], maxPage - 1);
+    const startIndex = page * REQUESTS_PER_PAGE;
+    const endIndex = Math.min(startIndex + REQUESTS_PER_PAGE, sectionItems.length);
+    const visibleItems = sectionItems.slice(startIndex, endIndex);
+
+    return (
+      <div className="mt-4">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className={`text-xs font-semibold uppercase tracking-wide ${titleClass}`}>
+            {title} ({sectionItems.length})
+          </div>
+          {sectionItems.length > REQUESTS_PER_PAGE && (
+            <div className="text-[11px] text-blue-gray-500">
+              {startIndex + 1}-{endIndex} of {sectionItems.length}
+            </div>
+          )}
+        </div>
+
+        {visibleItems.map((request) => (
+          <RequestList key={`${sectionKey}-${request._index}`} {...request} idReq={request._index} caddress={address} creator={creatorAddress} voterAll={voterCounter} />
+        ))}
+
+        {sectionItems.length > REQUESTS_PER_PAGE && (
+          <div className="mt-3 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => changePage(sectionKey, -1, maxPage - 1)}
+              disabled={page === 0}
+              className="rounded-md bg-blue-gray-50 px-2.5 py-1 text-xs font-medium text-blue-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <div className="text-xs text-blue-gray-500">
+              Page {page + 1}/{maxPage}
+            </div>
+            <button
+              type="button"
+              onClick={() => changePage(sectionKey, 1, maxPage - 1)}
+              disabled={page >= maxPage - 1}
+              className="rounded-md bg-blue-gray-50 px-2.5 py-1 text-xs font-medium text-blue-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="w-full ">
         <div className="mx-auto w-full rounded-2xl bg-white">
-          <div className="flex items-end justify-between text-base">
-            <div className="flex text-blue-gray-900">{requestWd?.length} Request</div>
+          <div className="flex flex-col gap-2 text-base sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex items-center gap-2 text-blue-gray-900">
+              <span className="text-base font-semibold">{requestWd?.length} Requests</span>
+              <span className="text-xs text-blue-gray-500">(compact mode)</span>
+            </div>
             {account === creatorAddress && status !== 0 && (
-              <button className="flex items-center text-blue-600 hover:text-blue-900" onClick={() => setIsOpen(true)}>
+              <button className="flex items-center text-blue-600 hover:text-blue-900 text-sm sm:text-base" onClick={() => setIsOpen(true)}>
                 <IoIosAddCircleOutline className="mr-2" /> Request Withdrawl
               </button>
             )}
           </div>
-          {requestWd.length === 0 && <div className="flex justify-center italic my-3">No Request Yet</div>}
-          {groupedRequest.ongoing.length > 0 && <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-blue-700">Sedang Berlangsung ({groupedRequest.ongoing.length})</div>}
-          {groupedRequest.ongoing.map((request) => (
-            <RequestList key={`ongoing-${request._index}`} {...request} idReq={request._index} caddress={address} creator={creatorAddress} voterAll={voterCounter} />
-          ))}
+          {requestWd.length === 0 && <div className="flex justify-center italic my-3">No requests yet.</div>}
 
-          {groupedRequest.approved.length > 0 && <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-emerald-700">Approved ({groupedRequest.approved.length})</div>}
-          {groupedRequest.approved.map((request) => (
-            <RequestList key={`approved-${request._index}`} {...request} idReq={request._index} caddress={address} creator={creatorAddress} voterAll={voterCounter} />
-          ))}
-
-          {groupedRequest.disapproved.length > 0 && <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-red-700">Disapproved ({groupedRequest.disapproved.length})</div>}
-          {groupedRequest.disapproved.map((request) => (
-            <RequestList key={`disapproved-${request._index}`} {...request} idReq={request._index} caddress={address} creator={creatorAddress} voterAll={voterCounter} />
-          ))}
+          {renderSection("ongoing", "Ongoing", "text-blue-700")}
+          {renderSection("approved", "Approved", "text-emerald-700")}
+          {renderSection("disapproved", "Disapproved", "text-red-700")}
         </div>
       </div>
       <RequestWithdrawlModal isOpen={isOpen} cancel={() => setIsOpen(false)} caddress={address} collectedFunds={collectedFunds} />
