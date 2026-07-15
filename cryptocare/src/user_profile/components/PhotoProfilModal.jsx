@@ -5,45 +5,22 @@ import { useContractFunction, useEthers } from "@usedapp/core";
 import loader from "../../assets/loader_4.svg";
 import { toast, Flip } from "react-toastify";
 import { CiImport } from "react-icons/ci";
-const pinataJwt = import.meta.env.VITE_PINATA_JWT;
 
-async function uploadToPinata(file, jwt) {
+async function uploadToPinata(file) {
   const payload = new FormData();
   payload.append("file", file);
 
-  try {
-    const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-      body: payload,
-    });
-    const data = await response.json();
-
-    if (response.ok && data?.IpfsHash) {
-      return data.IpfsHash;
-    }
-  } catch (_err) {
-    // Fallback to uploads endpoint
-  }
-
-  const fallbackPayload = new FormData();
-  fallbackPayload.append("file", file);
-  const fallbackResponse = await fetch("https://uploads.pinata.cloud/v3/files", {
+  const response = await fetch("/api/pinata-upload", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: fallbackPayload,
+    body: payload,
   });
+  const data = await response.json();
 
-  const fallbackData = await fallbackResponse.json();
-  if (fallbackResponse.ok && (fallbackData?.data?.cid || fallbackData?.cid)) {
-    return fallbackData?.data?.cid || fallbackData?.cid;
+  if (!response.ok || !data?.cid) {
+    throw new Error(data?.error || "Upload to Pinata failed.");
   }
 
-  throw new Error(fallbackData?.error?.reason || fallbackData?.error || "Upload to Pinata failed.");
+  return data.cid;
 }
 
 export default function PhotoProfilModal({ isOpen, cancel }) {
@@ -107,14 +84,6 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!pinataJwt) {
-      toast.error("Pinata config belum di-set. Isi VITE_PINATA_JWT di .env", {
-        autoClose: 6000,
-        transition: Flip,
-      });
-      return;
-    }
-
     if (!file) return;
 
     setIsUploading(true);
@@ -122,7 +91,7 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
       const loading = toast.loading("Uploading photo to IPFS...", {
         autoClose: false,
       });
-      const cid = await uploadToPinata(file, pinataJwt);
+      const cid = await uploadToPinata(file);
       const url = `https://gateway.pinata.cloud/ipfs/${cid}`;
       setPhotoUrl(url);
       toast.update(loading, {
@@ -133,7 +102,7 @@ export default function PhotoProfilModal({ isOpen, cancel }) {
         transition: Flip,
       });
     } catch (error) {
-      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi/JWT Pinata.`, {
+      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi.`, {
         autoClose: 7000,
         transition: Flip,
       });
