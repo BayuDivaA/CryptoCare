@@ -2,51 +2,21 @@ import React, { useState } from "react";
 import { CiImport } from "react-icons/ci";
 import { toast, Flip } from "react-toastify";
 
-const pinataJwt = import.meta.env.VITE_PINATA_JWT;
-
-async function uploadToPinata(file, jwt) {
+async function uploadToPinata(file) {
   const payload = new FormData();
   payload.append("file", file);
 
-  // Legacy Pinata pinning endpoint
-  try {
-    const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-      body: payload,
-    });
-    const data = await response.json();
-
-    if (response.ok && data?.IpfsHash) {
-      return data.IpfsHash;
-    }
-  } catch (_err) {
-    // try fallback endpoint below
-  }
-
-  // New Pinata uploads endpoint
-  const fallbackPayload = new FormData();
-  fallbackPayload.append("file", file);
-  const fallbackResponse = await fetch("https://uploads.pinata.cloud/v3/files", {
+  const response = await fetch("/api/pinata-upload", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: fallbackPayload,
+    body: payload,
   });
+  const data = await response.json();
 
-  const fallbackData = await fallbackResponse.json();
-  if (fallbackResponse.ok && (fallbackData?.data?.cid || fallbackData?.cid)) {
-    return fallbackData?.data?.cid || fallbackData?.cid;
+  if (!response.ok || !data?.cid) {
+    throw new Error(data?.error || "Request gagal ke Pinata (kemungkinan CORS/network).");
   }
 
-  throw new Error(
-    fallbackData?.error?.reason ||
-      fallbackData?.error ||
-      "Request gagal ke Pinata (kemungkinan CORS/network/JWT)."
-  );
+  return data.cid;
 }
 
 const Page3 = ({ formData, setFormData, preview, setPreview }) => {
@@ -69,13 +39,6 @@ const Page3 = ({ formData, setFormData, preview, setPreview }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!pinataJwt) {
-      toast.error("Pinata config belum di-set. Isi VITE_PINATA_JWT di .env", {
-        autoClose: 6000,
-        transition: Flip,
-      });
-      return;
-    }
     if (!file) return;
 
     setIsUploading(true);
@@ -84,7 +47,7 @@ const Page3 = ({ formData, setFormData, preview, setPreview }) => {
         autoClose: false,
       });
 
-      const cid = await uploadToPinata(file, pinataJwt);
+      const cid = await uploadToPinata(file);
       const url = `https://gateway.pinata.cloud/ipfs/${cid}`;
       setFormData({
         ...formData,
@@ -98,7 +61,7 @@ const Page3 = ({ formData, setFormData, preview, setPreview }) => {
         transition: Flip,
       });
     } catch (error) {
-      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi/adblock dan JWT Pinata.`, {
+      toast.error(`Upload failed: ${error?.message || "Unknown error"}. Cek koneksi/adblock.`, {
         autoClose: 7000,
         transition: Flip,
       });
